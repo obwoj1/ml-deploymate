@@ -1,0 +1,24 @@
+# Core ML
+pandas
+numpy
+scikit-learn
+scipy
+joblib
+
+# Backend
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic-settings
+python-dotenv
+
+# LLM
+openai
+
+# Dashboard
+streamlit
+plotly
+
+# Testing
+pytest
+httpx
