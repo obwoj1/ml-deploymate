@@ -147,7 +147,7 @@ Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric
 
 1. Is a third member being added to SavageAI?
 2. What is Dr. Dacon's GitHub username (for the collaborator invite)?
-3. ~~Marissa's GitHub username?~~ `sadiebird5` (confirm this is Marissa)
+3. ~~Marissa's GitHub username?~~ `sadiebird5` (verified: Marissa Savage)
 4. OpenAI API key: whose account, and what's the budget? (`gpt-4o-mini` is a few cents per demo run.)
 5. Deadlines and rubric: TBD from Dr. Dacon.
 
