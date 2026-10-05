@@ -155,4 +155,4 @@ Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric
 
 | Date | Update |
 |---|---|
-| 2026-10-05 | Repo created (private), blueprint + README skeleton written. Phase 0 in progress. |
+| 2026-10-05 | Repo created (private) at github.com/obwoj1/ml-deploymate; blueprint, README, folder skeleton, CI + PR template pushed. Marissa (sadiebird5) invited with write access. Still need: Dr. Dacon's GitHub username, third-member answer. Note: branch protection is not available on free private repos, so the "no direct push to main" rule is enforced by the team, not by GitHub. |
