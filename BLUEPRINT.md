@@ -1,7 +1,7 @@
 # ML DeployMate — Project Blueprint
 
 > Team **SavageAI** · Dr. Dacon's Machine Learning course · Fall 2026
-> Status: **Phase 0: scaffolding** (repo created 2026-10-05). Update the status log at the bottom as work progresses.
+> Status: **Phase 0: scaffolding** (repo created 2026-10-05). Day-to-day progress lives in [PROGRESS.md](PROGRESS.md).
 
 This is the plan we agree on **before** writing code. If we change the plan, we change this file first, in a PR.
 
@@ -69,7 +69,10 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 - **Adaptive thresholds:** rolling mean ± k·std per metric, learned from the "healthy" period. This covers the concept doc's "dynamically adjusting thresholds."
 - **Evaluation (this is what makes it real ML):** we generate labeled scenarios: healthy, gradual covariate drift, sudden shift, label drift, and noise/corruption. We measure the detector's **precision, recall, F1, and detection delay** (batches until the alert fires).
 
-### 4c. LLM layer (OpenAI)
+### 4c. LLM layer (provider: pending, Claude recommended)
+- **Provider-agnostic:** all LLM calls go through one small interface in `deploymate/llm/` (`explain_alert`, `generate_config`). The rest of the code never imports a vendor SDK directly, so switching OpenAI ↔ Claude is a one-file change.
+- **Recommendation: Claude (Anthropic API), on Oba's account.** Oba has already shipped Claude API code (Morgan IT Portal), so there's less to learn. Structured JSON outputs are supported. Cost per alert explanation is about 1–2¢ on Claude Opus 5.5, or well under 1¢ on Claude Haiku 4.5 if we want cheaper. Either way the whole project should cost a few dollars at most.
+- **Tradeoff:** the concept doc says "OpenAI API." If we use Claude, we note the deviation in the README. The design and graded ML are the same either way.
 - `explain_alert(alert, recent_metrics)` → what happened, likely cause, suggested action.
 - `generate_config(form)` → Dockerfile + GitHub Actions workflow + `.env.example` for the user's model.
 - Structured outputs (JSON schema) so the UI can render the results cleanly.
@@ -97,13 +100,13 @@ ml-deploymate/
 
 ## 6. Team & ownership
 
-> ⚠️ **Open question:** the course rule is **exactly 3 people**, but SavageAI is listed with 2 (Marissa Savage, Obaloluwa Wojuade). **Ask Dr. Dacon** whether a third member is being assigned. The split below works for 2 and has a slot ready for a third.
+> Team of 3 confirmed: Marissa Savage (`sadiebird5`), Obaloluwa Wojuade (`obwoj1`), and Aubrenesia Tomilson (`aubrenesia`), invited 2026-10-06.
 
 | Area | Owner | Notes |
 |---|---|---|
 | Data pipeline, EDA, monitored model training + evaluation | Marissa Savage (`sadiebird5`) | `deploymate/data`, `deploymate/model`, `scripts/`, `notebooks/` |
 | Monitoring engine, drift simulation, detector evaluation | Obaloluwa Wojuade (`obwoj1`) | `deploymate/monitor`, `deploymate/simulate` |
-| FastAPI + DB, LLM layer, Streamlit dashboard, deployment | Shared, or third member if assigned | Split by feature branch |
+| FastAPI + DB, LLM layer, Streamlit dashboard, deployment | Aubrenesia Tomilson (`aubrenesia`) | `api/`, `deploymate/llm`, `deploymate/db`, `app/` (proposed, confirm with her) |
 | README, demo.gif, CI | Shared | Everyone commits |
 
 Grading looks at **each person's commit history**, so ownership is per area, but everyone touches everything at least a little (reviews, tests, docs).
@@ -134,8 +137,8 @@ Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric
 
 ## 9. Submission checklist (from Dr. Dacon's post)
 
-- [ ] Team of 3 (pending confirmation)
-- [ ] Dr. Dacon added as repo collaborator (**need his GitHub username**)
+- [x] Team of 3 (third member `aubrenesia` invited 2026-10-06)
+- [x] Dr. Dacon (`daconjam`) invited as repo collaborator (2026-10-05)
 - [ ] Every member has meaningful commits
 - [ ] README follows the course template
 - [ ] `demo.gif` embedded in README
@@ -145,10 +148,10 @@ Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric
 
 ## 10. Open questions
 
-1. Is a third member being added to SavageAI?
-2. What is Dr. Dacon's GitHub username (for the collaborator invite)?
+1. ~~Third member~~ Aubrenesia Tomilson (`aubrenesia`), invited 2026-10-06.
+2. ~~Dr. Dacon's GitHub username~~ `daconjam` (invited)
 3. ~~Marissa's GitHub username?~~ `sadiebird5` (verified: Marissa Savage)
-4. OpenAI API key: whose account, and what's the budget? (`gpt-4o-mini` is a few cents per demo run.)
+4. LLM API key: Oba's account. Provider decision pending (Claude recommended, see §4c).
 5. Deadlines and rubric: TBD from Dr. Dacon.
 
 ## 11. Status log
