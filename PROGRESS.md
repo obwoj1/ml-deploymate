@@ -36,9 +36,11 @@ The LLM is the assistant layer on top.
 
 ## 🔄 In progress
 
-- [ ] Marissa accepts the repo invite and pushes her first commit
-- [ ] Dr. Dacon accepts the repo invite
-- [ ] `aubrenesia` accepts the invite (Aubrenesia Tomilson); confirm she's OK owning API/LLM/dashboard
+- [x] Marissa accepted the repo invite (confirmed 2026-10-07)
+- [ ] Marissa pushes her first commit
+- [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
+- [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
+- [ ] Aubrenesia confirms she's OK owning API/LLM/dashboard and pushes her first commit
 - [ ] Decide LLM provider: OpenAI vs Claude (see Decisions below)
 
 ## ⏭️ Up next (Phase 1: Data + baseline, owner: Marissa)
