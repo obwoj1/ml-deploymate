@@ -44,8 +44,10 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Configure environment variables
-cp .env.example .env      # then add your OPENAI_API_KEY
+cp .env.example .env      # then add your API key
 ```
+
+Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
 
 ---
 
