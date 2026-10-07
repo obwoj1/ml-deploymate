@@ -6,7 +6,7 @@
 As per course requirements, all three members must actively collaborate and commit to this repository.
 *   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Data pipeline, EDA, monitored model training & evaluation
 *   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Drift simulation, monitoring engine & detector evaluation
-*   **[Member 3 Name] ([GitHub Username])** - *TBD (pending confirmation from Dr. Dacon)*
+*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - FastAPI backend, LLM assistant layer, Streamlit dashboard & deployment
 
 ---
 
