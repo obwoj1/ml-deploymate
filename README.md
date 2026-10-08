@@ -4,9 +4,9 @@
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - ML & backend 
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Live Monitor & Model Performance dashboard pages, demo walkthrough
-*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - Dashboard app shell & theme,
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - 
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** -
+*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** -
 
 ---
 
