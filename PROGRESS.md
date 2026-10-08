@@ -8,7 +8,7 @@
 
 ## 📍 Where we are right now
 
-**Phase 0: Scaffold** (almost done)
+**Sprint 1: Foundations.** Setup is done; drift tests are built (PR #2); roles were updated 2026-10-08.
 
 **Goal for the project:** build a tool that watches a deployed ML model, detects when it starts going wrong (data drift, performance drops), and uses an LLM to explain each alert in plain English and suggest fixes. The graded ML pieces are:
 1. A classifier trained on a public dataset (the model being monitored).
@@ -40,23 +40,22 @@ The LLM is the assistant layer on top.
 - [x] Marissa's first commit: created `scripts/download_data.py` (empty placeholder) via PR #1, merged 2026-10-08
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
-- [ ] Aubrenesia confirms she's OK owning API/LLM/dashboard and pushes her first commit
+- [ ] Aubrenesia pushes her first commit
 - [ ] Decide LLM provider: OpenAI vs Claude (see Decisions below)
 
-## ⏭️ Up next (Phase 1: Data + baseline, owner: Marissa)
+## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
 
-- [ ] `scripts/download_data.py`: fetch the UCI Adult dataset into `data/raw/`
-- [ ] `notebooks/01_eda.ipynb`: explore features, target balance, missing values
-- [ ] Train/test split + baseline Logistic Regression
-- [ ] Record first test-set metrics in the README table
+**Oba (ML + backend)**
+- [ ] Mock `deploymate/service.py` **first**, so the frontend can start building
+- [ ] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult)
+- [ ] EDA notebook + baseline model
+- [ ] Drift simulator (`deploymate/simulate/`)
 
-Phase 4 prep (Aubrenesia, can start in parallel):
-- [ ] FastAPI skeleton in `api/` with a `/health` endpoint + test
-- [ ] SQLAlchemy models in `deploymate/db/` (deployments, batches, metrics, alerts)
+**Aubrenesia (frontend)**
+- [ ] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
 
-Phase 3 prep (Oba, can start in parallel):
-- [ ] Sketch the drift scenario generator (`deploymate/simulate/`)
-- [ ] Implement PSI + KS drift tests in `deploymate/monitor/` with unit tests
+**Marissa (frontend)**
+- [ ] Wireframes for Live Monitor + Model Performance; Streamlit/Plotly basics; review Oba's PRs
 
 ---
 
@@ -69,6 +68,7 @@ Phase 3 prep (Oba, can start in parallel):
 | 2026-10-05 | scikit-learn instead of TensorFlow | Tabular data; TF bloats the deploy |
 | 2026-10-05 | LLM has an offline fallback mode | The live demo must never break during the presentation |
 | 2026-10-05 | Report only measured numbers, not the made-up resume figures | Honesty, and graders will ask |
+| 2026-10-08 | **Team split:** Oba = all ML + backend; Marissa + Aubrenesia = frontend dashboard | Oba wants to own the core ML; frontend gives the others a clear, separate area with their own commits |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -82,6 +82,7 @@ Phase 3 prep (Oba, can start in parallel):
 ## 📓 Session log
 
 ### 2026-10-08
+- **Roles changed:** Oba takes the data, model, monitoring, LLM and API work; Marissa + Aubrenesia take the Streamlit dashboard. BLUEPRINT §6–7, README, and docs/TASKS.md rewritten to match.
 - Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
 - Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
 
@@ -94,4 +95,4 @@ Phase 3 prep (Oba, can start in parallel):
 - Read Dr. Dacon's project post + the ML DeployMate concept doc.
 - Realized the concept is an LLM tool but the course grades an ML project, so we redesigned around a monitored classifier + drift detector, with the LLM as the explanation layer.
 - Set up the repo, blueprint, README, skeleton, and CI; invited Marissa + Dr. Dacon.
-- **Next session:** Marissa starts Phase 1 on `feature/data-pipeline`; Oba starts drift tests on `feature/drift-tests`.
+- **Next session:** Oba starts drift tests on `feature/drift-tests`. (Original plan had Marissa on the data pipeline; superseded 2026-10-08.)
