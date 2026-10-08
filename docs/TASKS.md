@@ -35,6 +35,10 @@ Every task below builds one box of that chain. **Presentation story:** "Here's a
 
 **Marissa: Data + baseline model**
 - [ ] `scripts/download_data.py`: download UCI Adult into `data/raw/` (PR #1 created the file; fill it in)
+  - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
+  - Files: `adult.data` (train), `adult.test` (test), `adult.names` (column docs)
+  - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; values have leading spaces
+  - `data/raw/` is gitignored, so the **script** is how teammates and the live server get the data
 - [ ] `deploymate/data/load.py`: `load_dataset()`: clean (strip spaces, `?` → missing), fixed train/test split with `random_state=42`
 - [ ] `notebooks/01_eda.ipynb`: target balance, feature distributions, missing values, correlations
 - [ ] Baseline Logistic Regression and its first test metrics → README table
