@@ -52,9 +52,10 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ---
 
 ## 📊 Dataset
-*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) *(confirmed; download script in progress)*
-*   **Description:** ~48,842 rows, 14 demographic/employment features (mixed numeric + categorical). Binary target: `income > 50K`.
-*   **Data Pipeline:** Not tracked in git. `scripts/download_data.py` will fetch it into `data/raw/`. Drift scenarios are generated from the held-out test set by `deploymate/simulate/`.
+*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) (1994 U.S. Census, CC BY 4.0)
+*   **Description:** 48,842 people (32,561 train / 16,281 test), 14 features: 6 numeric (age, hours per week, capital gain, …) and 8 categorical (workclass, education, occupation, …). Binary target: `income > 50K` (24% positive, so imbalanced).
+*   **Role in the project:** (1) trains the monitored classifier, (2) defines the "normal" reference distribution, (3) is replayed as simulated live traffic with labeled, injected drift to evaluate the detector.
+*   **Data Pipeline:** Not tracked in git (`data/raw/` is gitignored). Run `python scripts/download_data.py`, or unzip [adult.zip](https://archive.ics.uci.edu/static/public/2/adult.zip) into `data/raw/`. Full walkthrough, column dictionary, and cleaning notes: [docs/DATASET.md](docs/DATASET.md).
 
 ---
 
