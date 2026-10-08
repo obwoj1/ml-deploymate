@@ -1,7 +1,7 @@
 # ML DeployMate — Project Blueprint
 
 > Team **SavageAI** · Dr. Dacon's Machine Learning course · Fall 2026
-> Status: **Phase 0: scaffolding** (repo created 2026-10-05). Day-to-day progress lives in [PROGRESS.md](PROGRESS.md).
+> Status: **Sprint 1: Foundations** (repo created 2026-10-05; roles updated 2026-10-08). Day-to-day progress lives in [PROGRESS.md](PROGRESS.md).
 
 This is the plan we agree on **before** writing code. If we change the plan, we change this file first, in a PR.
 
@@ -29,7 +29,7 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 
 | Concept doc says | We do | Why |
 |---|---|---|
-| React + D3.js dashboard | Streamlit + Plotly | Must be live on a free host (Streamlit Cloud / HF Spaces). A Python-only stack also means all 3 of us can work on the UI. |
+| React + D3.js dashboard | Streamlit + Plotly | Must be live on a free host (Streamlit Cloud / HF Spaces). A Python-only stack lets the frontend team build pages that call the backend package directly. |
 | AWS ECS / GCP App Engine | Streamlit Community Cloud or Hugging Face Spaces (Docker) | Free, and the course explicitly names these. ECS costs money and adds risk. |
 | TensorFlow | scikit-learn | Tabular data, so tree models win. TF adds ~500MB to the deploy for no gain. We can revisit if we add a neural model. |
 | "Real-time streaming pipelines" | Simulated stream: replay the test set in batches with controllable injected drift | Same ML problem, demo-able, and we can label it, which lets us measure detector precision/recall. |
@@ -100,33 +100,36 @@ ml-deploymate/
 
 ## 6. Team & ownership
 
-> Team of 3 confirmed: Marissa Savage (`sadiebird5`), Obaloluwa Wojuade (`obwoj1`), and Aubrenesia Tomilson (`aubrenesia`), invited 2026-10-06.
+> Team of 3: Obaloluwa Wojuade (`obwoj1`), Marissa Savage (`sadiebird5`), Aubrenesia Tomilson (`aubrenesia`).
+> **Split decided 2026-10-08:** Oba builds the ML + backend; Marissa and Aubrenesia build the frontend dashboard. Oba walks the team through the ML/backend once it's built so everyone can present it.
 
-| Area | Owner | Notes |
+| Area | Owner | Folders |
 |---|---|---|
-| Data pipeline, EDA, monitored model training + evaluation | Marissa Savage (`sadiebird5`) | `deploymate/data`, `deploymate/model`, `scripts/`, `notebooks/` |
-| Monitoring engine, drift simulation, detector evaluation | Obaloluwa Wojuade (`obwoj1`) | `deploymate/monitor`, `deploymate/simulate` |
-| FastAPI + DB, LLM layer, Streamlit dashboard, deployment | Aubrenesia Tomilson (`aubrenesia`) | `api/`, `deploymate/llm`, `deploymate/db`, `app/` (proposed, confirm with her) |
-| README, demo.gif, CI | Shared | Everyone commits |
+| Data pipeline, EDA, model training + evaluation | Oba | `deploymate/data`, `deploymate/model`, `scripts/`, `notebooks/` |
+| Drift simulation, monitoring engine, detector evaluation | Oba | `deploymate/simulate`, `deploymate/monitor` |
+| LLM assistant, DB, FastAPI, `service.py` (the frontend contract) | Oba | `deploymate/llm`, `deploymate/db`, `deploymate/service.py`, `api/` |
+| Dashboard shell + theme; Overview, Alerts + AI panel, Config Generator pages; live deployment | Aubrenesia | `app/Home.py`, `app/pages/`, `.streamlit/` |
+| Live Monitor + Model Performance pages; `demo.gif` | Marissa | `app/pages/`, `assets/` |
+| Frontend smoke tests | Marissa + Aubrenesia | `tests/app/` |
+| README, presentation | Everyone | Each writes/presents their own part |
 
-Grading looks at **each person's commit history**, so ownership is per area, but everyone touches everything at least a little (reviews, tests, docs).
+**Frontend ↔ backend contract:** pages import only `deploymate.service`. Oba ships a mock version first so the frontend can start immediately. Full task list: [docs/TASKS.md](docs/TASKS.md).
 
-## 7. Phases
+Grading looks at **each person's commit history**, so everyone commits their own area and reviews each other's PRs.
+
+## 7. Sprints
 
 Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric.
 
-| # | Phase | Deliverable | Done when |
+| Sprint | Backend (Oba) | Frontend (Marissa + Aubrenesia) | Done when |
 |---|---|---|---|
-| 0 | Scaffold | Private repo, README skeleton, this blueprint, Dr. Dacon added as collaborator | Both teammates have cloned and pushed one commit |
-| 1 | Data + baseline | `download_data.py`, EDA notebook, baseline model, first metrics | Test-set F1 recorded in README |
-| 2 | Monitored model | Tuned model, saved artifact, FastAPI `/predict` | `pytest` passes and the API serves predictions |
-| 3 | Drift simulation + monitoring | Scenario generator, drift tests, Isolation Forest, detector eval | Detector precision/recall table in README |
-| 4 | LLM assistant | Alert explanations + config generator + offline fallback | Works both with a key and with no key |
-| 5 | Dashboard | Streamlit pages: overview, live metrics, drift injector, alerts, config gen | The full demo flow runs locally end to end |
-| 6 | Deploy + CI | Live URL, GitHub Actions running pytest | URL works in an incognito window |
-| 7 | Polish | `demo.gif`, final README, assets, presentation | Rubric checklist all ✅ |
+| 0 | Repo, blueprint, CI, drift tests ✅ | Clone repo, first commit | Everyone has pushed once |
+| 1 | Mock `service.py`, dataset download + loader, EDA, baseline model, drift simulator | App shell, theme, 5 stub pages, wireframes | Shell runs with all pages; dataset loads |
+| 2 | Final model, batch metrics, Isolation Forest, `run_batch()` pipeline | All pages built on mock data | Every page works on mock data |
+| 3 | Detector evaluation, LLM layer, FastAPI, swap mock → real service | Config Generator page, test on real data, smoke tests | Dashboard runs on real data; README results filled |
+| 4 | Final README, team walkthrough of ML/backend | Deploy live site, `demo.gif` | Live URL works in incognito; presentation rehearsed |
 
-Per-person, sprint-by-sprint tasks: [docs/TASKS.md](docs/TASKS.md).
+Per-person checklists: [docs/TASKS.md](docs/TASKS.md).
 
 ## 8. Git workflow (team rules)
 
@@ -160,4 +163,5 @@ Per-person, sprint-by-sprint tasks: [docs/TASKS.md](docs/TASKS.md).
 
 | Date | Update |
 |---|---|
+| 2026-10-08 | Team split changed: Oba owns all ML + backend; Marissa + Aubrenesia own the frontend dashboard. Phases replaced by 4 sprints (see §7 and docs/TASKS.md). |
 | 2026-10-05 | Repo created (private) at github.com/obwoj1/ml-deploymate; blueprint, README, folder skeleton, CI + PR template pushed. Marissa (sadiebird5) invited with write access. Still need: Dr. Dacon's GitHub username, third-member answer. Note: branch protection is not available on free private repos, so the "no direct push to main" rule is enforced by the team, not by GitHub. |
