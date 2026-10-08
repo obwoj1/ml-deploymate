@@ -13,9 +13,9 @@ git clone https://github.com/obwoj1/ml-deploymate.git
 cd ml-deploymate
 ```
 
-**If you already have it** (Oba: `~/Developer/ml-deploymate`), just pull the latest:
+**If you already have it** (Oba: `~/Desktop/ml-deploymate`), just pull the latest:
 ```bash
-cd ~/Developer/ml-deploymate
+cd ~/Desktop/ml-deploymate
 git pull origin main
 ```
 
