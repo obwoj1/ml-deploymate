@@ -16,7 +16,7 @@
 
 The LLM is the assistant layer on top.
 
-**Goal for this phase:** get the repo, plan, and team access set up so all three of us can start committing on feature branches.
+**Goal for this sprint:** Oba ships the mock `service.py` + dataset loader + baseline model; Aubrenesia ships the app shell; Marissa designs her pages. See [docs/TASKS.md](docs/TASKS.md).
 
 ---
 
