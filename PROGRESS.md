@@ -37,7 +37,7 @@ The LLM is the assistant layer on top.
 ## 🔄 In progress
 
 - [x] Marissa accepted the repo invite (confirmed 2026-10-07)
-- [ ] Marissa pushes her first commit
+- [x] Marissa's first commit: created `scripts/download_data.py` (empty placeholder) via PR #1, merged 2026-10-08
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
 - [ ] Aubrenesia confirms she's OK owning API/LLM/dashboard and pushes her first commit
@@ -80,6 +80,10 @@ Phase 3 prep (Oba, can start in parallel):
 ---
 
 ## 📓 Session log
+
+### 2026-10-08
+- Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
+- Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
 
 ### 2026-10-06: Third member
 - Third teammate's GitHub is `aubrenesia`; invited with write access. Proposed role: API + DB + LLM layer + dashboard + deployment.
