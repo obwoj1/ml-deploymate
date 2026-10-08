@@ -4,9 +4,9 @@
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - ML & backend lead: data pipeline, model training & evaluation, drift/anomaly monitoring engine, LLM assistant, FastAPI
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Frontend: Live Monitor & Model Performance dashboard pages, demo walkthrough
-*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - Frontend: dashboard app shell & theme, Overview / Alerts / Config Generator pages, live deployment
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - ML & backend 
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Live Monitor & Model Performance dashboard pages, demo walkthrough
+*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - Dashboard app shell & theme,
 
 ---
 
