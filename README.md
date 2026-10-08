@@ -4,9 +4,9 @@
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Data pipeline, EDA, monitored model training & evaluation
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Drift simulation, monitoring engine & detector evaluation
-*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - FastAPI backend, LLM assistant layer, Streamlit dashboard & deployment
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - ML & backend lead: data pipeline, model training & evaluation, drift/anomaly monitoring engine, LLM assistant, FastAPI
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Frontend: Live Monitor & Model Performance dashboard pages, demo walkthrough
+*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - Frontend: dashboard app shell & theme, Overview / Alerts / Config Generator pages, live deployment
 
 ---
 
@@ -52,7 +52,7 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ---
 
 ## 📊 Dataset
-*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) *(proposed, to be confirmed in Phase 1)*
+*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) *(confirmed; download script in progress)*
 *   **Description:** ~48,842 rows, 14 demographic/employment features (mixed numeric + categorical). Binary target: `income > 50K`.
 *   **Data Pipeline:** Not tracked in git. `scripts/download_data.py` will fetch it into `data/raw/`. Drift scenarios are generated from the held-out test set by `deploymate/simulate/`.
 
@@ -61,7 +61,7 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ## 🧠 Model Architecture & Training
 *   **Algorithm:** Monitored model: Logistic Regression baseline → Random Forest / Gradient Boosting. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
 *   **Frameworks Used:** scikit-learn, FastAPI, SQLAlchemy, OpenAI API, Streamlit
-*   **Training Process:** *TBD (Phase 1–3)*
+*   **Training Process:** *TBD (Sprints 1–2, see [docs/TASKS.md](docs/TASKS.md))*
 
 ---
 

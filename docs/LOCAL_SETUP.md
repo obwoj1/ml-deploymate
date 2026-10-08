@@ -56,7 +56,7 @@ Open `.env` and paste the API key (ask Oba, and **never commit `.env`**; git alr
 
 ## 6. Get the dataset
 
-Once `scripts/download_data.py` exists (Phase 1):
+Once `scripts/download_data.py` exists (Sprint 1, Oba):
 ```bash
 python scripts/download_data.py
 ```
