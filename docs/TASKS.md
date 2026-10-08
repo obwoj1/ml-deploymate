@@ -50,11 +50,11 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 
 **Oba: Data, baseline model, mock service**
 - [x] `deploymate/monitor/drift.py`: PSI / KS / chi² / Cramér's V + tests (PR #2)
-- [ ] **`deploymate/service.py` (mock version)**: do this FIRST, it unblocks the frontend
-- [ ] `scripts/download_data.py`: download UCI Adult into `data/raw/`
+- [x] **`deploymate/service.py` (mock version)**: do this FIRST, it unblocks the frontend
+- [x] `scripts/download_data.py`: download UCI Adult into `data/raw/`
   - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
   - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; leading spaces
-- [ ] `deploymate/data/load.py`: `load_dataset()`: clean the data, fixed train/test split
+- [x] `deploymate/data/load.py`: `load_dataset()`: clean the data, uses the dataset's own train/test split
 - [ ] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README
 - [ ] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios
 
