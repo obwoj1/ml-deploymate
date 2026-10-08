@@ -46,7 +46,8 @@ The LLM is the assistant layer on top.
 ## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
 
 **Oba (ML + backend)**
-- [ ] Mock `deploymate/service.py` **first**, so the frontend can start building
+- [x] Drift tests: PSI/KS + chi²/Cramér's V, 7 tests passing
+- [x] Mock `deploymate/service.py` **first**, so the frontend can start building
 - [ ] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult)
 - [ ] EDA notebook + baseline model
 - [ ] Drift simulator (`deploymate/simulate/`)
@@ -82,6 +83,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-08
+- Oba: set up local venv; built `deploymate/monitor/drift.py` (PSI + KS for numeric, chi² + Cramér's V for categorical; drift decision uses effect size, not p-values, because big batches make p-values flag tiny shifts) + `tests/test_drift.py`. 
 - **Roles changed:** Oba takes the data, model, monitoring, LLM and API work; Marissa + Aubrenesia take the Streamlit dashboard. BLUEPRINT §6–7, README, and docs/TASKS.md rewritten to match.
 - Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
 - Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
