@@ -82,6 +82,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-08
+- Dataset downloaded by hand into `data/raw/` on Oba's Mac (32,561 train rows, 16,281 test rows; gitignored, so not on GitHub). `download_data.py` still needed for teammates + the live server.
 - **Roles changed:** Oba takes the data, model, monitoring, LLM and API work; Marissa + Aubrenesia take the Streamlit dashboard. BLUEPRINT §6–7, README, and docs/TASKS.md rewritten to match.
 - Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
 - Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
