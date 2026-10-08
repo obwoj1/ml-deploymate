@@ -70,6 +70,8 @@ The LLM is the assistant layer on top.
 | 2026-10-05 | LLM has an offline fallback mode | The live demo must never break during the presentation |
 | 2026-10-05 | Report only measured numbers, not the made-up resume figures | Honesty, and graders will ask |
 | 2026-10-08 | **Team split:** Oba = all ML + backend; Marissa + Aubrenesia = frontend dashboard | Oba wants to own the core ML; frontend gives the others a clear, separate area with their own commits |
+| 2026-10-08 | Dataset confirmed: UCI Adult. Keep rows with `?` as an "Unknown" category instead of dropping them | Live data has gaps too; dropping would lose ~7% of rows |
+| 2026-10-08 | Report F1 + ROC-AUC, not just accuracy | 76% of rows are `<=50K`, so always guessing that already scores 76% |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -83,7 +85,11 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-08
+- Built mock `deploymate/service.py` (the frontend contract) + `tests/test_service.py`; 16 tests passing.
+- **Branch cleanup:** Oba wants fewer branches. All of Oba's work now lives on ONE branch, `backend` (drift tests + mock service + dataset docs). Old `feature/drift-tests`, `feature/mock-service`, `docs/task-plan` deleted.
 - Oba: set up local venv; built `deploymate/monitor/drift.py` (PSI + KS for numeric, chi² + Cramér's V for categorical; drift decision uses effect size, not p-values, because big batches make p-values flag tiny shifts) + `tests/test_drift.py`. 
+- Wrote `docs/DATASET.md` (what the data is, columns, quirks, why we chose it, its 3 jobs in the project, bias note, 30-sec presentation summary); README Dataset section filled in.
+- Dataset downloaded by hand into `data/raw/` on Oba's Mac (32,561 train rows, 16,281 test rows; gitignored, so not on GitHub). `download_data.py` still needed for teammates + the live server.
 - **Roles changed:** Oba takes the data, model, monitoring, LLM and API work; Marissa + Aubrenesia take the Streamlit dashboard. BLUEPRINT §6–7, README, and docs/TASKS.md rewritten to match.
 - Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
 - Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
