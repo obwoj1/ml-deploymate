@@ -126,6 +126,8 @@ Deadlines haven't been posted yet. Fill in dates when Dr. Dacon posts the rubric
 | 6 | Deploy + CI | Live URL, GitHub Actions running pytest | URL works in an incognito window |
 | 7 | Polish | `demo.gif`, final README, assets, presentation | Rubric checklist all ✅ |
 
+Per-person, sprint-by-sprint tasks: [docs/TASKS.md](docs/TASKS.md).
+
 ## 8. Git workflow (team rules)
 
 1. `main` is always deployable. **No direct pushes to `main`.** Everything goes through a PR.
