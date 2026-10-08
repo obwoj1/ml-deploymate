@@ -56,7 +56,7 @@ Phase 4 prep (Aubrenesia, can start in parallel):
 
 Phase 3 prep (Oba, can start in parallel):
 - [ ] Sketch the drift scenario generator (`deploymate/simulate/`)
-- [ ] Implement PSI + KS drift tests in `deploymate/monitor/` with unit tests
+- [x] Implement PSI + KS drift tests in `deploymate/monitor/` with unit tests (`feature/drift-tests`, 7 tests passing)
 
 ---
 
@@ -82,6 +82,7 @@ Phase 3 prep (Oba, can start in parallel):
 ## 📓 Session log
 
 ### 2026-10-08
+- Oba: set up local venv; built `deploymate/monitor/drift.py` (PSI + KS for numeric, chi² + Cramér's V for categorical; drift decision uses effect size, not p-values, because big batches make p-values flag tiny shifts) + `tests/test_drift.py`. PR open for teammate review.
 - Marissa opened PR #1 (`feature/download-data`) creating an empty `scripts/download_data.py`; Oba merged it. First PR-based contribution ✅
 - Project folder moved on Oba's Mac from `~/Developer/ml-deploymate` to `~/Desktop/ml-deploymate`.
 
