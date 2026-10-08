@@ -134,7 +134,7 @@ Per-person checklists: [docs/TASKS.md](docs/TASKS.md).
 ## 8. Git workflow (team rules)
 
 1. `main` is always deployable. **No direct pushes to `main`.** Everything goes through a PR.
-2. Branch names: `feature/<thing>`, `fix/<thing>`, `docs/<thing>`, e.g. `feature/drift-psi`.
+2. **One branch per person** (decided 2026-10-08, to avoid branch clutter): `backend` (Oba), `frontend-aubrenesia`, `frontend-marissa`. Keep reusing your branch: when a chunk of work is done, open a PR into `main`, merge it, then `git pull origin main` into your branch and keep going.
 3. Commit small and often, with descriptive messages ("Add PSI drift test for numeric features", not "update").
 4. Every PR needs **one review from a teammate** before merging. Reviewing counts as collaboration.
 5. `git pull origin main` before starting work and before opening a PR.

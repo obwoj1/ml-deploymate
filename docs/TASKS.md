@@ -125,5 +125,5 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 ## Rules that keep the grade safe
 1. **Each person commits their own tasks.** Oba doesn't build the pages; Marissa and Aubrenesia don't build the ML.
 2. **Every PR gets a review from a teammate.** Frontend folks review backend PRs too (that's how they learn it for the presentation).
-3. **Merge small PRs often.** One task ≈ one PR.
+3. **One branch per person, PR per finished chunk.** Branches: `backend` (Oba), `frontend-aubrenesia`, `frontend-marissa`. Open a PR into `main` whenever a chunk works; after merging, keep using the same branch.
 4. Frontend imports **only** `deploymate.service`, so backend changes never break the pages.
