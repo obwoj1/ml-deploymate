@@ -6,120 +6,124 @@
 
 ---
 
+## Team split (updated 2026-10-08)
+
+| Who | Owns | Folders |
+|---|---|---|
+| **Oba** (`obwoj1`) | **ML + backend**: data, model, drift simulation, monitoring engine, evaluation, LLM layer, API | `deploymate/`, `api/`, `scripts/`, `notebooks/`, `tests/` (backend) |
+| **Marissa** (`sadiebird5`) | **Frontend**: Live Monitor page, Model Performance page, `demo.gif` | `app/pages/` (her pages), `tests/app/` |
+| **Aubrenesia** (`aubrenesia`) | **Frontend**: app shell + theme, Overview, Alerts + AI panel, Config Generator, deploying the live site | `app/` (shell + her pages), `.streamlit/`, `tests/app/` |
+
+Oba explains the ML/backend to the team once it's built, so everyone can present their part.
+
+---
+
 ## The big picture: what the final demo shows
 
 ```
- ① Model serves predictions  →  ② Batches of live data flow in  →  ③ Monitor checks each batch
-        (Marissa)                      (Oba: simulator)                (Oba: drift + anomaly)
-                                                                              │
- ⑥ Live URL + demo.gif  ←  ⑤ Dashboard shows it all  ←  ④ Alert saved + LLM explains it
-     (everyone)                 (Aubrenesia lead)            (Aubrenesia: DB + LLM)
+ ┌──────────── BACKEND (Oba) ────────────┐        ┌──────────── FRONTEND (Marissa + Aubrenesia) ────────────┐
+ │ data → model → simulated live batches │        │ Overview · Live Monitor · Alerts + AI explanation ·      │
+ │ → drift + anomaly detection → alerts  │ ─────► │ Model Performance · Config Generator                     │
+ │ → LLM explanation                     │ service│ (Streamlit, deployed to a live URL)                      │
+ └───────────────────────────────────────┘  .py   └──────────────────────────────────────────────────────────┘
 ```
 
-Every task below builds one box of that chain. **Presentation story:** "Here's a healthy model → we inject drift → watch DeployMate catch it and explain what happened → here are our measured results."
+**Presentation story:** "Here's a healthy model → we inject drift → watch DeployMate catch it on the dashboard and explain what happened → here are our measured results."
 
-### The contracts (agree on these early so nobody waits on anybody)
-| Contract | Owner | Used by |
+### The one contract between backend and frontend: `deploymate/service.py`
+
+The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships a **mock version first** (returns realistic fake data), so the frontend team can build every page from day one. Later Oba swaps the internals for the real thing, and the pages don't change.
+
+| Function | Returns | Used on page |
 |---|---|---|
-| `deploymate.data.load_dataset()` → `(X_train, X_test, y_train, y_test)` as DataFrames | Marissa | Oba (simulator), Aubrenesia (API) |
-| `models/model.joblib`: a fitted sklearn `Pipeline` (preprocessing + classifier) with `.predict` / `.predict_proba` | Marissa | Oba (batch metrics), Aubrenesia (`/predict`) |
-| `deploymate.monitor.drift.detect_drift(ref_df, cur_df)` → list of `FeatureDrift` | Oba ✅ | Aubrenesia (alerts, dashboard) |
-| `deploymate.monitor.run_batch(batch)` → `BatchReport` (metrics + drift + anomaly flag) | Oba | Aubrenesia (API, DB, dashboard) |
-| `deploymate.llm.explain_alert(report)` → `{summary, likely_cause, suggested_action}` | Aubrenesia | Dashboard |
-
-**Until a contract is ready, use fake data with the same shape.** For example, Oba's simulator can run on synthetic DataFrames before Marissa's loader exists.
+| `get_overview()` | deployment name, model, status, # batches, # active alerts | Overview |
+| `list_scenarios()` | `["healthy", "gradual_shift", "sudden_shift", ...]` | Live Monitor |
+| `run_scenario(name, n_batches)` | iterator of batch reports (metrics, per-feature drift, alert flag) | Live Monitor |
+| `list_alerts()` | alerts with time, severity, features, metrics | Alerts |
+| `explain_alert(alert_id)` | `{summary, likely_cause, suggested_action}` | Alerts |
+| `get_model_report()` | train/test metrics, confusion matrix, ROC points, feature importance | Model Performance |
+| `generate_config(form)` | `{dockerfile, github_actions, env_example}` | Config Generator |
 
 ---
 
-## Sprint 1: Foundations (all three work in parallel)
+## Sprint 1: Foundations (in parallel)
 
-**Marissa: Data + baseline model**
-- [ ] `scripts/download_data.py`: download UCI Adult into `data/raw/` (PR #1 created the file; fill it in)
-  - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
-  - Files: `adult.data` (train), `adult.test` (test), `adult.names` (column docs)
-  - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; values have leading spaces
-  - `data/raw/` is gitignored, so the **script** is how teammates and the live server get the data
-- [ ] `deploymate/data/load.py`: `load_dataset()`: clean (strip spaces, `?` → missing), fixed train/test split with `random_state=42`
-- [ ] `notebooks/01_eda.ipynb`: target balance, feature distributions, missing values, correlations
-- [ ] Baseline Logistic Regression and its first test metrics → README table
-
-**Oba: Monitoring core**
+**Oba: Data, baseline model, mock service**
 - [x] `deploymate/monitor/drift.py`: PSI / KS / chi² / Cramér's V + tests (PR #2)
-- [ ] `deploymate/simulate/scenarios.py`: split a dataset into batches and inject labeled problems: `healthy`, `gradual_shift`, `sudden_shift`, `category_shift`, `noise`, `missing_values`
-- [ ] Tests for the simulator
+- [ ] **`deploymate/service.py` (mock version)**: do this FIRST, it unblocks the frontend
+- [ ] `scripts/download_data.py`: download UCI Adult into `data/raw/`
+  - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
+  - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; leading spaces
+- [ ] `deploymate/data/load.py`: `load_dataset()`: clean the data, fixed train/test split
+- [ ] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README
+- [ ] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios
 
-**Aubrenesia: Backend skeleton**
-- [ ] `deploymate/db/models.py`: SQLAlchemy tables: `deployments`, `batches`, `metrics`, `alerts` (SQLite)
-- [ ] `api/main.py`: FastAPI app with `GET /health` + a test
-- [ ] `deploymate/llm/client.py`: the provider interface + **offline fallback** (template text when there's no key)
+**Aubrenesia: App shell**
+- [ ] `app/Home.py`: Streamlit entry point, sidebar navigation, page layout
+- [ ] `.streamlit/config.toml`: theme (colors, font)
+- [ ] Empty stub pages for all 5 pages so the navigation works
+- [ ] Sketch wireframes for her pages (paper or Figma, screenshots in `assets/wireframes/`)
 
-**Sprint 1 done when:** the dataset loads, the baseline is scored, the simulator makes labeled batches, and the API answers `/health`.
+**Marissa: Page designs**
+- [ ] Sketch wireframes for Live Monitor + Model Performance (`assets/wireframes/`)
+- [ ] Learn Streamlit + Plotly basics (charts, `st.metric`, `st.columns`, `st.session_state`)
+- [ ] Review Oba's PRs (counts as collaboration)
 
----
-
-## Sprint 2: Real model + monitor wired together
-
-**Marissa: Final model**
-- [ ] `scripts/train.py`: compare LogReg vs Random Forest vs Gradient Boosting with cross-validation
-- [ ] Save the best one as `models/model.joblib` (a Pipeline with preprocessing included)
-- [ ] `scripts/evaluate.py`: train/test accuracy, F1, ROC-AUC; confusion matrix + ROC curve PNGs in `assets/`
-
-**Oba: Anomaly detection + pipeline**
-- [ ] `deploymate/monitor/metrics.py`: per-batch metrics from model predictions (accuracy, positive rate, mean confidence, missing-value rate)
-- [ ] `deploymate/monitor/anomaly.py`: Isolation Forest trained on healthy batch metrics + adaptive thresholds (rolling mean ± k·std)
-- [ ] `deploymate/monitor/pipeline.py`: `run_batch()` combining drift + metrics + anomaly into one `BatchReport`
-
-**Aubrenesia: API endpoints**
-- [ ] `POST /predict`: loads `model.joblib` and returns predictions
-- [ ] `POST /batches`: runs `run_batch()` and stores the report + any alerts in the DB
-- [ ] `GET /alerts`, `GET /deployments/{id}/metrics`
-
-**Sprint 2 done when:** you can POST a drifted batch and get an alert stored in the DB.
+**Sprint 1 done when:** the app shell runs with 5 navigable pages, the mock service exists, and the dataset loads.
 
 ---
 
-## Sprint 3: Evaluation + LLM
+## Sprint 2: Build pages on mock data / real model
 
-**Marissa: Model results**
-- [ ] Hyperparameter tuning on the winning model; final numbers in the README
-- [ ] Short "why this model" writeup for the README's *Model Architecture & Training* section
+**Oba: Real model + monitoring engine**
+- [ ] `scripts/train.py`: LogReg vs Random Forest vs Gradient Boosting, cross-validated; best saved to `models/model.joblib`
+- [ ] `scripts/evaluate.py`: accuracy, F1, ROC-AUC; confusion matrix + ROC data
+- [ ] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`run_batch()`)
 
-**Oba: Detector evaluation (the headline result)**
-- [ ] `scripts/evaluate_monitor.py`: run every scenario many times; compute precision, recall, F1, and mean detection delay
-- [ ] Results table + plots in the README and `assets/`
-- [ ] Tune the thresholds (PSI, Cramér's V, Isolation Forest contamination) on a validation set of scenarios, **not** the test set
+**Aubrenesia: Overview + Alerts pages** (using the mock service)
+- [ ] Overview: status cards (`st.metric`), recent-alerts table
+- [ ] Alerts: filterable alert list, detail view, "Explain with AI" button → explanation panel
 
-**Aubrenesia: LLM assistant**
-- [ ] `explain_alert(report)`: structured JSON output, tested with and without an API key
-- [ ] `generate_config(form)`: Dockerfile + GitHub Actions + `.env.example`
-- [ ] `POST /assistant/explain`, `POST /assistant/config`
+**Marissa: Live Monitor + Model Performance pages** (using the mock service)
+- [ ] Live Monitor: scenario picker → "Start" streams batches → Plotly line charts update live (accuracy, PSI per feature) → red banner when an alert fires
+- [ ] Model Performance: metric cards, confusion matrix heatmap, ROC curve, feature importance bar chart
 
-**Sprint 3 done when:** both README results tables are filled with real numbers and every alert has an explanation.
-
----
-
-## Sprint 4: Dashboard (everyone builds one page)
-
-Aubrenesia sets up the Streamlit app shell (`app/Home.py`, navigation, shared styling); then each person builds a page:
-- [ ] **Aubrenesia**: Overview + Alerts page (alert list, LLM explanation panel) + Config Generator page
-- [ ] **Oba**: Live Monitor page (pick a scenario → stream batches → PSI/metric charts update → alert fires)
-- [ ] **Marissa**: Model page (metrics, confusion matrix, ROC curve, feature importance)
-
-**Sprint 4 done when:** the full demo story runs locally, start to finish.
+**Sprint 2 done when:** every page works end to end on mock data.
 
 ---
 
-## Sprint 5: Ship + present (everyone)
+## Sprint 3: Real backend + LLM, swap mock → real
 
-- [ ] Deploy to Streamlit Community Cloud or HF Spaces (lead: Aubrenesia); API key in host secrets; test the URL in an incognito window
-- [ ] `demo.gif` recorded and embedded in the README (lead: Marissa)
-- [ ] README final pass: every template section filled in (lead: Oba)
-- [ ] Presentation: each person presents their own part
-- [ ] Rehearse the live demo on the deployed URL, with offline mode as a backup
+**Oba**
+- [ ] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/`
+- [ ] `deploymate/llm/`: `explain_alert`, `generate_config`, with offline fallback
+- [ ] `api/`: FastAPI endpoints (`/predict`, `/batches`, `/alerts`, `/assistant/*`)
+- [ ] Swap `service.py` internals from mock → real
+
+**Aubrenesia**
+- [ ] Config Generator page: form → generated files shown in code blocks + download buttons
+- [ ] Test her pages against the real service; fix anything that breaks
+- [ ] `tests/app/`: Streamlit `AppTest` smoke tests (each page loads without errors)
+
+**Marissa**
+- [ ] Test her pages against the real service; polish charts (labels, colors, empty/loading states)
+- [ ] `tests/app/`: `AppTest` smoke tests for her pages
+
+**Sprint 3 done when:** the dashboard runs on real data and both README results tables are filled in.
+
+---
+
+## Sprint 4: Ship + present (everyone)
+
+- [ ] **Aubrenesia**: deploy to Streamlit Community Cloud / HF Spaces; API key in host secrets; works in an incognito window
+- [ ] **Marissa**: record `demo.gif` of the full demo story, embed it in the README
+- [ ] **Oba**: final README (dataset, model, results); walk the team through the ML/backend
+- [ ] **Everyone**: presentation (each person presents their own part); rehearse on the live URL
 
 ---
 
 ## Rules that keep the grade safe
-1. **Each person commits their own tasks.** Helping = reviewing PRs, pairing, unblocking. Don't write someone else's task under your account.
-2. **Every PR gets a review from a teammate.** Reviews are visible collaboration.
+1. **Each person commits their own tasks.** Oba doesn't build the pages; Marissa and Aubrenesia don't build the ML.
+2. **Every PR gets a review from a teammate.** Frontend folks review backend PRs too (that's how they learn it for the presentation).
 3. **Merge small PRs often.** One task ≈ one PR.
+4. Frontend imports **only** `deploymate.service`, so backend changes never break the pages.
