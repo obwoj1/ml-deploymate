@@ -73,6 +73,7 @@ The LLM is the assistant layer on top.
 | 2026-10-08 | Dataset confirmed: UCI Adult. Keep rows with `?` as an "Unknown" category instead of dropping them | Live data has gaps too; dropping would lose ~7% of rows |
 | 2026-10-08 | Report F1 + ROC-AUC, not just accuracy | 76% of rows are `<=50K`, so always guessing that already scores 76% |
 | 2026-10-08 | Drop `fnlwgt` and `education` columns | `fnlwgt` is a sampling weight, not a person attribute; `education` duplicates `education_num` |
+| 2026-10-08 | Teammates **pick** tasks from a pick-up list (docs/TASKS.md) and claim them with GitHub Issues instead of fixed assignments; Oba keeps the ML + backend bulk | Lets them choose what they're comfortable with; issues + PRs make everyone's contributions visible |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
