@@ -74,13 +74,23 @@ To **look at the data**:
 | API | `uvicorn api.main:app --reload` → http://localhost:8000/docs |
 | Dashboard | `streamlit run app/Home.py` → opens in your browser |
 
-## 8. Daily workflow
+## 8. Daily workflow (one branch per person)
 
+Your branch: `backend` (Oba), `frontend-aubrenesia`, or `frontend-marissa`.
+
+**First time only:**
 ```bash
-git checkout main && git pull origin main      # get teammates' work
-git checkout -b feature/your-thing             # new branch for your task
+git checkout -b frontend-yourname        # create your branch
+git push -u origin frontend-yourname
+```
+
+**Every session:**
+```bash
+git checkout frontend-yourname          # your one branch
+git pull origin main                    # bring in teammates' merged work
 # ...work, save, test...
 git add <files> && git commit -m "Describe what you did"
-git push -u origin feature/your-thing          # then open a PR on GitHub
+git push
 ```
+When a chunk of work is done and tested, open a PR from your branch into `main` on GitHub. After it's merged, **keep using the same branch**.
 Then log what you did in [PROGRESS.md](../PROGRESS.md).
