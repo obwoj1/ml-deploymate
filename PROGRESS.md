@@ -48,7 +48,7 @@ The LLM is the assistant layer on top.
 **Oba (ML + backend)**
 - [x] Drift tests: PSI/KS + chi²/Cramér's V, 7 tests passing
 - [x] Mock `deploymate/service.py` **first**, so the frontend can start building
-- [ ] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult)
+- [x] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult), 29 tests passing
 - [ ] EDA notebook + baseline model
 - [ ] Drift simulator (`deploymate/simulate/`)
 
@@ -72,6 +72,7 @@ The LLM is the assistant layer on top.
 | 2026-10-08 | **Team split:** Oba = all ML + backend; Marissa + Aubrenesia = frontend dashboard | Oba wants to own the core ML; frontend gives the others a clear, separate area with their own commits |
 | 2026-10-08 | Dataset confirmed: UCI Adult. Keep rows with `?` as an "Unknown" category instead of dropping them | Live data has gaps too; dropping would lose ~7% of rows |
 | 2026-10-08 | Report F1 + ROC-AUC, not just accuracy | 76% of rows are `<=50K`, so always guessing that already scores 76% |
+| 2026-10-08 | Drop `fnlwgt` and `education` columns | `fnlwgt` is a sampling weight, not a person attribute; `education` duplicates `education_num` |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -85,6 +86,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-08
+- Data pipeline: `download_data.py` (uses certifi; python.org macOS Python failed SSL verification without it) and `load_dataset()` (fixes all quirks, drops `fnlwgt` + `education`, missing → "Unknown", y = 1 for >50K). Tests use fake quirk-matching files so CI passes without the real data.
 - Built mock `deploymate/service.py` (the frontend contract) + `tests/test_service.py`; 16 tests passing.
 - **Branch cleanup:** Oba wants fewer branches. All of Oba's work now lives on ONE branch, `backend` (drift tests + mock service + dataset docs). Old `feature/drift-tests`, `feature/mock-service`, `docs/task-plan` deleted.
 - Oba: set up local venv; built `deploymate/monitor/drift.py` (PSI + KS for numeric, chi² + Cramér's V for categorical; drift decision uses effect size, not p-values, because big batches make p-values flag tiny shifts) + `tests/test_drift.py`. 
