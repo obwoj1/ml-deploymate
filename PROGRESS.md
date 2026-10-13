@@ -77,6 +77,8 @@ The LLM is the assistant layer on top.
 | 2026-10-12 | Monitored model = Gradient Boosting; pick by CV ROC-AUC | Best on every CV metric; ROC-AUC isn't fooled by class imbalance |
 | 2026-10-12 | Don't commit `model.joblib`; regenerate it with `scripts/train.py` | Pickled sklearn models break across library versions; training takes ~15s |
 | 2026-10-12 | Pool categories <1% of the reference into "Other" for drift tests | Rare categories made healthy batches look drifted by chance (native_country false alarms) |
+| 2026-10-12 | Anomaly detector uses only label-free metrics | In production, true labels arrive late; the monitor must work without them |
+| 2026-10-12 | Isolation Forest alarm line = strangest of 200 healthy calibration batches (not `contamination`) | `contamination` guarantees ~2% false alarms on healthy data |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -90,6 +92,9 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-12
+- **Monitor complete (both halves):** `metrics.py` (label-free: positive rate, mean confidence, low-confidence share, unknown rate; accuracy/F1 only when labels exist), `anomaly.py` (per-metric z-score > 4 vs healthy + Isolation Forest), `pipeline.py` (`Monitor.check()` → metrics, drift, anomaly, alert, severity, same shape as service.py). 58 tests.
+- **Isolation Forest tuning:** sklearn's `contamination` setting flags a fixed share of healthy batches by design (~2% false alarms, 6–7 per 3-seed sweep). Switched to calibrating on 200 healthy batches and setting the alarm line at the strangest healthy batch → 0 false alarms, still catches problems on its own.
+- **Results (full monitor, 1 run):** 0 false alarms in every scenario; caught 20/20 on all abrupt scenarios, 21/28 gradual. Anomaly detector alone catches 20/20 `missing_values` (via unknown_rate) and some of the others.
 - **False alarms fixed:** categories under 1% of the reference are pooled into "Other" before the chi² test. Scenario summary now: 0 false alarms in every scenario (was 4–6), still 20/20 caught on abrupt scenarios, 21/28 on gradual.
 - `report.json` no longer stores training times, so it's identical between runs.
 - **Drift simulator built:** `simulate()` replays the test set as 40 batches × 400 rows; 6 scenarios (healthy, gradual_shift, sudden_shift, category_shift, missing_values, noise), each healthy for the first part of the run, then broken, with ground-truth labels. `scripts/simulate.py` shows it live.
