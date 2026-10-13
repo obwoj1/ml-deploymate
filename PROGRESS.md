@@ -91,6 +91,10 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-13
+- OpenAI key added to Oba's `.env` and verified; provider = OpenAI `gpt-4o-mini`.
+- **Created GitHub issues #9–#19** for Marissa and Bree, each with step-by-step instructions and tested Streamlit starter code (every snippet run through Streamlit's AppTest first): #9 setup, #10 wireframes, #11 theme, #12 app shell (do first), #13 Overview, #14 Live Monitor, #15 Model Performance, #16 Alerts, #17 Config Generator, #18 presentation outline, #19 related-work research. Unassigned; they pick.
+
 ### 2026-10-12
 - **Monitor complete (both halves):** `metrics.py` (label-free: positive rate, mean confidence, low-confidence share, unknown rate; accuracy/F1 only when labels exist), `anomaly.py` (per-metric z-score > 4 vs healthy + Isolation Forest), `pipeline.py` (`Monitor.check()` → metrics, drift, anomaly, alert, severity, same shape as service.py). 58 tests.
 - **Isolation Forest tuning:** sklearn's `contamination` setting flags a fixed share of healthy batches by design (~2% false alarms, 6–7 per 3-seed sweep). Switched to calibrating on 200 healthy batches and setting the alarm line at the strangest healthy batch → 0 false alarms, still catches problems on its own.
