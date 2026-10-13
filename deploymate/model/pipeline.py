@@ -25,7 +25,9 @@ def build_preprocessor() -> ColumnTransformer:
     """
     return ColumnTransformer([
         ("num", StandardScaler(), NUMERIC),
-        ("cat", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL),
+        # Dense output: HistGradientBoosting can't take sparse matrices, and the
+        # data is small enough (~32k rows x ~90 columns) that dense is fine.
+        ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), CATEGORICAL),
     ])
 
 

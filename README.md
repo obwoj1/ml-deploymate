@@ -60,26 +60,34 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ---
 
 ## 🧠 Model Architecture & Training
-*   **Algorithm:** Monitored model: Logistic Regression baseline → Random Forest / Gradient Boosting. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
+*   **Algorithm:** Monitored model: Gradient Boosting (`HistGradientBoostingClassifier`), chosen over Random Forest and a Logistic Regression baseline. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
 *   **Frameworks Used:** scikit-learn, FastAPI, SQLAlchemy, OpenAI API, Streamlit
-*   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Baseline: Logistic Regression trained on the dataset's own train split, scored on the held-out test split. *(Model comparison + tuning in progress.)*
+*   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Three classifiers compared with stratified 5-fold cross-validation on the training split; the winner by ROC-AUC (robust to the 76/24 class imbalance) is refit on all training data and scored once on the held-out test split. Run `python scripts/train.py` (~15s) to reproduce; it saves `models/model.joblib` + `models/report.json`.
 
 ---
 
 ## 📈 Evaluation & Results
 *Results will be filled in as models are trained.*
 
-**Monitored model** (current: Logistic Regression baseline; tree models next)
+**Monitored model: Gradient Boosting** (selected by 5-fold cross-validated ROC-AUC)
 
 | Metric | Training Set | Test Set |
 | :--- | :--- | :--- |
-| Accuracy | 0.852 | 0.853 |
-| Precision | 0.735 | 0.728 |
-| Recall | 0.606 | 0.599 |
-| F1-Score | 0.664 | 0.657 |
-| ROC-AUC | 0.908 | 0.905 |
+| Accuracy | 0.884 | 0.873 |
+| Precision | 0.805 | 0.773 |
+| Recall | 0.684 | 0.652 |
+| F1-Score | 0.740 | 0.707 |
+| ROC-AUC | 0.943 | 0.928 |
 
-*For reference, always predicting `<=50K` scores 0.764 test accuracy. Exploration + baseline: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
+**Model comparison** (5-fold cross-validation on the training set)
+
+| Model | CV Accuracy | CV F1 | CV ROC-AUC |
+| :--- | :--- | :--- | :--- |
+| **Gradient Boosting** | **0.873** | **0.713** | **0.928** |
+| Random Forest | 0.866 | 0.690 | 0.919 |
+| Logistic Regression (baseline) | 0.852 | 0.662 | 0.907 |
+
+*For reference, always predicting `<=50K` scores 0.764 test accuracy. Most important features (permutation importance): marital status, capital gain, age, education. Full report: [models/report.json](models/report.json). Exploration: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
 
 **Drift / anomaly detector** (on labeled injected-drift scenarios)
 
