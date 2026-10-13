@@ -195,24 +195,21 @@
       "cv_accuracy": 0.8728,
       "cv_f1": 0.7133,
       "cv_roc_auc": 0.9284,
-      "cv_roc_auc_std": 0.0014,
-      "fit_seconds": 0.93
+      "cv_roc_auc_std": 0.0014
     },
     {
       "model": "Random Forest",
       "cv_accuracy": 0.8659,
       "cv_f1": 0.6895,
       "cv_roc_auc": 0.9193,
-      "cv_roc_auc_std": 0.002,
-      "fit_seconds": 0.45
+      "cv_roc_auc_std": 0.002
     },
     {
       "model": "Logistic Regression",
       "cv_accuracy": 0.8518,
       "cv_f1": 0.6622,
       "cv_roc_auc": 0.9065,
-      "cv_roc_auc_std": 0.0016,
-      "fit_seconds": 0.09
+      "cv_roc_auc_std": 0.0016
     }
   ]
 }
