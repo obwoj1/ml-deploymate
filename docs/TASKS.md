@@ -50,12 +50,12 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 
 **Oba: Data, baseline model, mock service**
 - [x] `deploymate/monitor/drift.py`: PSI / KS / chi² / Cramér's V + tests (PR #2)
-- [ ] **`deploymate/service.py` (mock version)**: do this FIRST, it unblocks the frontend
-- [ ] `scripts/download_data.py`: download UCI Adult into `data/raw/`
+- [x] **`deploymate/service.py` (mock version)**: do this FIRST, it unblocks the frontend
+- [x] `scripts/download_data.py`: download UCI Adult into `data/raw/`
   - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
   - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; leading spaces
-- [ ] `deploymate/data/load.py`: `load_dataset()`: clean the data, fixed train/test split
-- [ ] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README
+- [x] `deploymate/data/load.py`: `load_dataset()`: clean the data, uses the dataset's own train/test split
+- [x] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README (test acc 0.853, F1 0.657, ROC-AUC 0.905)
 - [ ] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios
 
 **Aubrenesia: App shell**
@@ -122,8 +122,37 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 
 ---
 
+## 🙋 Pick-up list: choose what you want (added 2026-10-08)
+
+Instead of assigning everything, **teammates pick tasks they're interested in**. Oba carries the ML + backend; these are smaller, self-contained tasks anyone can take.
+
+**How to claim one:**
+1. Open a **GitHub Issue** (repo → Issues → New issue) with the task name, and assign it to yourself so nobody doubles up.
+2. Work on **your own branch** (`frontend-aubrenesia` / `frontend-marissa`; one branch each, reused).
+3. Push and open a **PR** that says `Closes #<issue number>`.
+4. A teammate reviews and merges. **We all review each other's PRs.**
+
+| Task | Difficulty | Needs |
+|---|---|---|
+| Sketch wireframes for the 5 dashboard pages (paper or Figma → `assets/wireframes/`) | 🟢 Easy | Nothing |
+| Test `docs/LOCAL_SETUP.md` on your laptop; fix any confusing step | 🟢 Easy | Nothing |
+| Research 2–3 real tools like ours (Evidently AI, WhyLabs, Arize) for a "related work" slide | 🟢 Easy | Nothing |
+| Presentation slide outline (intro, problem, dataset, demo, results, future work) | 🟢 Easy | Nothing |
+| Pick the dashboard theme: colors + font in `.streamlit/config.toml` | 🟢 Easy | Nothing |
+| Streamlit app shell: `app/Home.py` + sidebar navigation + 5 empty pages | 🟡 Medium | Streamlit basics |
+| Overview page: status cards with `st.metric` from `service.get_overview()` | 🟡 Medium | App shell |
+| Alerts page: table from `service.list_alerts()` + "Explain" button | 🟡 Medium | App shell |
+| Model Performance page: Plotly confusion matrix + ROC curve from `service.get_model_report()` | 🟡 Medium | App shell |
+| Live Monitor page: scenario dropdown + live-updating line chart from `service.run_scenario()` | 🟠 Harder | App shell |
+| Config Generator page: form → `service.generate_config()` → code blocks + download buttons | 🟡 Medium | App shell |
+| Record `demo.gif` + write the demo script | 🟢 Easy | Working dashboard (later) |
+| README "Responsible use / bias" section (see docs/DATASET.md §6) | 🟢 Easy | Nothing |
+| Review any open PR (read it, leave a comment, approve) | 🟢 Easy | Nothing |
+
+Stuck? Comment on your issue or ping the group chat. Asking early is faster than guessing.
+
 ## Rules that keep the grade safe
 1. **Each person commits their own tasks.** Oba doesn't build the pages; Marissa and Aubrenesia don't build the ML.
 2. **Every PR gets a review from a teammate.** Frontend folks review backend PRs too (that's how they learn it for the presentation).
-3. **One branch per person, PR per finished chunk.** Branches: `backend` (Oba), `frontend-aubrenesia`, `frontend-marissa`. Open a PR into `main` whenever a chunk works; after merging, keep using the same branch.
+3. **Issue → your branch → PR → teammate review → merge.** Claim work with an issue; one branch per person, PR per finished chunk. Branches: `backend` (Oba), `frontend-aubrenesia`, `frontend-marissa`. Open a PR into `main` whenever a chunk works; after merging, keep using the same branch.
 4. Frontend imports **only** `deploymate.service`, so backend changes never break the pages.

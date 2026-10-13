@@ -56,6 +56,8 @@ The test file comes pre-split. We train on one file and grade on the other, so t
 | Junk first line (`\|1x3 Cross validator`) | `adult.test` | Skip the first row |
 | Labels end in a period (`>50K.`) | `adult.test` | Strip the trailing `.` |
 
+We also **drop two columns**: `fnlwgt` (a census sampling weight, not a fact about the person) and `education` (same info as `education_num`, as text). That leaves **12 features**: 5 numeric, 7 categorical.
+
 About 7% of training rows (2,399) have at least one missing value. Instead of dropping them, we keep them as an `"Unknown"` category, because real live data also has gaps.
 
 ## 4. Why we picked it
@@ -99,10 +101,18 @@ The dataset includes `race`, `sex`, and `native_country`, and it reflects 1994 i
 ## 7. How to get it
 
 ```bash
-python scripts/download_data.py     # once the script is written (Sprint 1)
+python scripts/download_data.py          # downloads into data/raw/
+python scripts/download_data.py --force  # re-download
 ```
 Or by hand: download the zip above and unzip it into `data/raw/`. That folder is gitignored, so **the data is never pushed to GitHub**. Everyone (and the live server) downloads their own copy.
 
-## 8. 30-second version (for the presentation)
+## 8. Using it in code
+
+```python
+from deploymate.data.load import load_dataset
+X_train, X_test, y_train, y_test = load_dataset()   # y: 1 = >50K, 0 = <=50K
+```
+
+## 9. 30-second version (for the presentation)
 
 > "We used the UCI Adult census dataset: about 48,000 people, 14 features like age, education, occupation, and hours worked, and the goal of predicting whether someone earns over $50K. It does three jobs for us. It trains the model we're monitoring. It defines what 'normal' data looks like. And when we replay it as live traffic and deliberately corrupt some batches, it lets us measure exactly how well DeployMate catches problems."

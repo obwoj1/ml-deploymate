@@ -32,3 +32,6 @@ models/*.joblib
 .DS_Store
 .vscode/
 .idea/
+
+# graphify knowledge-graph output (generated locally)
+graphify-out/
