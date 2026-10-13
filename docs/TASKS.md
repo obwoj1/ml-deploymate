@@ -76,8 +76,8 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 ## Sprint 2: Build pages on mock data / real model
 
 **Oba: Real model + monitoring engine**
-- [ ] `scripts/train.py`: LogReg vs Random Forest vs Gradient Boosting, cross-validated; best saved to `models/model.joblib`
-- [ ] `scripts/evaluate.py`: accuracy, F1, ROC-AUC; confusion matrix + ROC data
+- [x] `scripts/train.py`: LogReg vs Random Forest vs Gradient Boosting, cross-validated; best saved to `models/model.joblib` (Gradient Boosting won)
+- [x] Evaluation: accuracy, F1, ROC-AUC, confusion matrix, ROC data, permutation importance → `models/report.json` (built into train.py)
 - [ ] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`run_batch()`)
 
 **Aubrenesia: Overview + Alerts pages** (using the mock service)
