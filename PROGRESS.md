@@ -49,7 +49,7 @@ The LLM is the assistant layer on top.
 - [x] Drift tests: PSI/KS + chi²/Cramér's V, 7 tests passing
 - [x] Mock `deploymate/service.py` **first**, so the frontend can start building
 - [x] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult), 29 tests passing
-- [ ] EDA notebook + baseline model
+- [x] EDA notebook + baseline model (test accuracy 0.853, F1 0.657, ROC-AUC 0.905)
 - [ ] Drift simulator (`deploymate/simulate/`)
 
 **Aubrenesia (frontend)**
@@ -85,6 +85,12 @@ The LLM is the assistant layer on top.
 ---
 
 ## 📓 Session log
+
+### 2026-10-12
+- PR #5 merged to main. Teammates haven't started yet, so Oba is pushing ahead on the backend.
+- Built `deploymate/model/pipeline.py` (Pipeline: StandardScaler + OneHotEncoder(handle_unknown="ignore") + classifier; `score()` returns accuracy/precision/recall/F1/ROC-AUC) + tests.
+- `notebooks/01_eda.ipynb`: target balance, numeric/categorical exploration, missing values, baseline LogReg, confusion matrix, top coefficients. Committed without outputs.
+- **Baseline (test):** accuracy 0.853, precision 0.728, recall 0.599, F1 0.657, ROC-AUC 0.905 vs 0.764 for always guessing <=50K.
 
 ### 2026-10-08
 - Data pipeline: `download_data.py` (uses certifi; python.org macOS Python failed SSL verification without it) and `load_dataset()` (fixes all quirks, drops `fnlwgt` + `education`, missing → "Unknown", y = 1 for >50K). Tests use fake quirk-matching files so CI passes without the real data.
