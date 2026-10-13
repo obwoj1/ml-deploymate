@@ -74,6 +74,8 @@ The LLM is the assistant layer on top.
 | 2026-10-08 | Report F1 + ROC-AUC, not just accuracy | 76% of rows are `<=50K`, so always guessing that already scores 76% |
 | 2026-10-08 | Drop `fnlwgt` and `education` columns | `fnlwgt` is a sampling weight, not a person attribute; `education` duplicates `education_num` |
 | 2026-10-08 | Teammates **pick** tasks from a pick-up list (docs/TASKS.md) and claim them with GitHub Issues instead of fixed assignments; Oba keeps the ML + backend bulk | Lets them choose what they're comfortable with; issues + PRs make everyone's contributions visible |
+| 2026-10-12 | Monitored model = Gradient Boosting; pick by CV ROC-AUC | Best on every CV metric; ROC-AUC isn't fooled by class imbalance |
+| 2026-10-12 | Don't commit `model.joblib`; regenerate it with `scripts/train.py` | Pickled sklearn models break across library versions; training takes ~15s |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -87,6 +89,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-12
+- **Final model trained:** `scripts/train.py` compares 3 models with 5-fold CV. Gradient Boosting won (CV ROC-AUC 0.928 vs RF 0.919 vs LogReg 0.907). Test: accuracy 0.873, F1 0.707, ROC-AUC 0.928. Top features: marital_status, capital_gain, age, education_num. Saves `models/model.joblib` (gitignored; regenerate in ~15s) + `models/report.json` (committed; the dashboard's Model Performance data).
 - PR #5 merged to main. Teammates haven't started yet, so Oba is pushing ahead on the backend.
 - Built `deploymate/model/pipeline.py` (Pipeline: StandardScaler + OneHotEncoder(handle_unknown="ignore") + classifier; `score()` returns accuracy/precision/recall/F1/ROC-AUC) + tests.
 - `notebooks/01_eda.ipynb`: target balance, numeric/categorical exploration, missing values, baseline LogReg, confusion matrix, top coefficients. Committed without outputs.
