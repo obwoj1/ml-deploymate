@@ -41,7 +41,7 @@ The LLM is the assistant layer on top.
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
 - [ ] Aubrenesia pushes her first commit
-- [ ] Decide LLM provider: OpenAI vs Claude (see Decisions below)
+- [x] LLM provider decided: OpenAI `gpt-4o-mini` (2026-10-13)
 
 ## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
 
@@ -79,12 +79,12 @@ The LLM is the assistant layer on top.
 | 2026-10-12 | Pool categories <1% of the reference into "Other" for drift tests | Rare categories made healthy batches look drifted by chance (native_country false alarms) |
 | 2026-10-12 | Anomaly detector uses only label-free metrics | In production, true labels arrive late; the monitor must work without them |
 | 2026-10-12 | Isolation Forest alarm line = strangest of 200 healthy calibration batches (not `contamination`) | `contamination` guarantees ~2% false alarms on healthy data |
-| *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
+| 2026-10-13 | **LLM provider: OpenAI (`gpt-4o-mini`)**, key in Oba's local `.env` (verified working) | Oba has an OpenAI key; matches the concept doc. Interface stays provider-agnostic |
 
 ## ❓ Open questions
 
 1. ~~Third team member~~ Aubrenesia Tomilson (`aubrenesia`).
-2. **LLM provider + API key:** Oba's account. Provider decision pending.
+2. ~~LLM provider~~ OpenAI, key set up in Oba's `.env`.
 3. **Deadlines + rubric:** not posted yet.
 
 ---
