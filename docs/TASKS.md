@@ -55,7 +55,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
   - Zip: https://archive.ics.uci.edu/static/public/2/adult.zip (page: https://archive.ics.uci.edu/dataset/2/adult)
   - Gotchas: no header row; `adult.test` has a junk first line and labels like `>50K.`; missing values are `?`; leading spaces
 - [x] `deploymate/data/load.py`: `load_dataset()`: clean the data, uses the dataset's own train/test split
-- [ ] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README
+- [x] `notebooks/01_eda.ipynb` + baseline Logistic Regression → first metrics in README (test acc 0.853, F1 0.657, ROC-AUC 0.905)
 - [ ] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios
 
 **Aubrenesia: App shell**
