@@ -57,3 +57,15 @@ def test_unseen_category_in_live_data_is_handled():
 def test_only_shared_columns_are_checked():
     cur = make_frame(1000).drop(columns="job")
     assert [r.feature for r in detect_drift(make_frame(5000), cur)] == ["age"]
+
+
+def test_rare_categories_do_not_cause_false_alarms():
+    # Like native_country: one dominant value plus 40 rare ones (0.25% each).
+    countries = ["US"] + [f"rare_{i}" for i in range(40)]
+    probs = [0.9] + [0.1 / 40] * 40
+    ref = pd.DataFrame({"country": rng.choice(countries, 20000, p=probs)})
+    alarms = 0
+    for _ in range(30):  # 30 healthy batches of 400 rows
+        cur = pd.DataFrame({"country": rng.choice(countries, 400, p=probs)})
+        alarms += by_feature(detect_drift(ref, cur))["country"].drifted
+    assert alarms <= 1
