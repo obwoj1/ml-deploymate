@@ -62,20 +62,24 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ## 🧠 Model Architecture & Training
 *   **Algorithm:** Monitored model: Logistic Regression baseline → Random Forest / Gradient Boosting. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
 *   **Frameworks Used:** scikit-learn, FastAPI, SQLAlchemy, OpenAI API, Streamlit
-*   **Training Process:** *TBD (Sprints 1–2, see [docs/TASKS.md](docs/TASKS.md))*
+*   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Baseline: Logistic Regression trained on the dataset's own train split, scored on the held-out test split. *(Model comparison + tuning in progress.)*
 
 ---
 
 ## 📈 Evaluation & Results
 *Results will be filled in as models are trained.*
 
-**Monitored model**
+**Monitored model** (current: Logistic Regression baseline; tree models next)
 
 | Metric | Training Set | Test Set |
 | :--- | :--- | :--- |
-| Accuracy | — | — |
-| F1-Score | — | — |
-| ROC-AUC | — | — |
+| Accuracy | 0.852 | 0.853 |
+| Precision | 0.735 | 0.728 |
+| Recall | 0.606 | 0.599 |
+| F1-Score | 0.664 | 0.657 |
+| ROC-AUC | 0.908 | 0.905 |
+
+*For reference, always predicting `<=50K` scores 0.764 test accuracy. Exploration + baseline: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
 
 **Drift / anomaly detector** (on labeled injected-drift scenarios)
 
