@@ -76,6 +76,7 @@ The LLM is the assistant layer on top.
 | 2026-10-08 | Teammates **pick** tasks from a pick-up list (docs/TASKS.md) and claim them with GitHub Issues instead of fixed assignments; Oba keeps the ML + backend bulk | Lets them choose what they're comfortable with; issues + PRs make everyone's contributions visible |
 | 2026-10-12 | Monitored model = Gradient Boosting; pick by CV ROC-AUC | Best on every CV metric; ROC-AUC isn't fooled by class imbalance |
 | 2026-10-12 | Don't commit `model.joblib`; regenerate it with `scripts/train.py` | Pickled sklearn models break across library versions; training takes ~15s |
+| 2026-10-12 | Pool categories <1% of the reference into "Other" for drift tests | Rare categories made healthy batches look drifted by chance (native_country false alarms) |
 | *pending* | **LLM provider:** recommendation is Claude, with the provider behind one small interface in `deploymate/llm/` so it can be swapped | See BLUEPRINT §4c |
 
 ## ❓ Open questions
@@ -89,6 +90,8 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-12
+- **False alarms fixed:** categories under 1% of the reference are pooled into "Other" before the chi² test. Scenario summary now: 0 false alarms in every scenario (was 4–6), still 20/20 caught on abrupt scenarios, 21/28 on gradual.
+- `report.json` no longer stores training times, so it's identical between runs.
 - **Drift simulator built:** `simulate()` replays the test set as 40 batches × 400 rows; 6 scenarios (healthy, gradual_shift, sudden_shift, category_shift, missing_values, noise), each healthy for the first part of the run, then broken, with ground-truth labels. `scripts/simulate.py` shows it live.
 - **First end-to-end run (drift tests only, no tuning yet):** every abrupt scenario caught 20/20; gradual_shift 21/28 (misses the earliest tiny shifts, as expected).
   - **Finding 1, false alarms:** 4–6 per run, almost all on `native_country`. 41 categories, most very rare, so a 400-row batch looks "different" by chance and Cramér's V gets inflated. Fix next: group rare categories into "Other" before the chi² test.
