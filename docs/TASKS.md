@@ -78,7 +78,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 **Oba: Real model + monitoring engine**
 - [x] `scripts/train.py`: LogReg vs Random Forest vs Gradient Boosting, cross-validated; best saved to `models/model.joblib` (Gradient Boosting won)
 - [x] Evaluation: accuracy, F1, ROC-AUC, confusion matrix, ROC data, permutation importance → `models/report.json` (built into train.py)
-- [ ] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`run_batch()`)
+- [x] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`Monitor.check()`)
 
 **Aubrenesia: Overview + Alerts pages** (using the mock service)
 - [ ] Overview: status cards (`st.metric`), recent-alerts table
