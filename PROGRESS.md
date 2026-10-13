@@ -50,7 +50,7 @@ The LLM is the assistant layer on top.
 - [x] Mock `deploymate/service.py` **first**, so the frontend can start building
 - [x] `scripts/download_data.py` + `deploymate/data/load.py` (UCI Adult), 29 tests passing
 - [x] EDA notebook + baseline model (test accuracy 0.853, F1 0.657, ROC-AUC 0.905)
-- [ ] Drift simulator (`deploymate/simulate/`)
+- [x] Drift simulator (`deploymate/simulate/`), 52 tests passing
 
 **Aubrenesia (frontend)**
 - [ ] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
@@ -89,6 +89,10 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-12
+- **Drift simulator built:** `simulate()` replays the test set as 40 batches × 400 rows; 6 scenarios (healthy, gradual_shift, sudden_shift, category_shift, missing_values, noise), each healthy for the first part of the run, then broken, with ground-truth labels. `scripts/simulate.py` shows it live.
+- **First end-to-end run (drift tests only, no tuning yet):** every abrupt scenario caught 20/20; gradual_shift 21/28 (misses the earliest tiny shifts, as expected).
+  - **Finding 1, false alarms:** 4–6 per run, almost all on `native_country`. 41 categories, most very rare, so a 400-row batch looks "different" by chance and Cramér's V gets inflated. Fix next: group rare categories into "Other" before the chi² test.
+  - **Finding 2, accuracy barely drops** (0.871 → ~0.865) under these shifts. The model is robust to these feature shifts. Presentation point: drift ≠ broken model, and in production the labels arrive late, so drift monitoring is the early warning. Consider adding a label/concept-shift scenario that really hurts accuracy, for a more dramatic demo.
 - **Final model trained:** `scripts/train.py` compares 3 models with 5-fold CV. Gradient Boosting won (CV ROC-AUC 0.928 vs RF 0.919 vs LogReg 0.907). Test: accuracy 0.873, F1 0.707, ROC-AUC 0.928. Top features: marital_status, capital_gain, age, education_num. Saves `models/model.joblib` (gitignored; regenerate in ~15s) + `models/report.json` (committed; the dashboard's Model Performance data).
 - PR #5 merged to main. Teammates haven't started yet, so Oba is pushing ahead on the backend.
 - Built `deploymate/model/pipeline.py` (Pipeline: StandardScaler + OneHotEncoder(handle_unknown="ignore") + classifier; `score()` returns accuracy/precision/recall/F1/ROC-AUC) + tests.
