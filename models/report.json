@@ -1,0 +1,218 @@
+{
+  "model": "Gradient Boosting",
+  "metrics": {
+    "train": {
+      "accuracy": 0.8841,
+      "precision": 0.8054,
+      "recall": 0.6841,
+      "f1": 0.7398,
+      "roc_auc": 0.9427
+    },
+    "test": {
+      "accuracy": 0.8725,
+      "precision": 0.7726,
+      "recall": 0.6521,
+      "f1": 0.7073,
+      "roc_auc": 0.9275
+    }
+  },
+  "baseline_always_negative_accuracy": 0.7638,
+  "confusion_matrix": {
+    "labels": [
+      "<=50K",
+      ">50K"
+    ],
+    "matrix": [
+      [
+        11697,
+        738
+      ],
+      [
+        1338,
+        2508
+      ]
+    ]
+  },
+  "roc_curve": {
+    "fpr": [
+      0.0,
+      0.0001,
+      0.0021,
+      0.0055,
+      0.0097,
+      0.0143,
+      0.0188,
+      0.0246,
+      0.03,
+      0.0347,
+      0.0399,
+      0.0462,
+      0.0523,
+      0.0602,
+      0.0687,
+      0.0758,
+      0.0848,
+      0.0959,
+      0.1059,
+      0.115,
+      0.1247,
+      0.1346,
+      0.1457,
+      0.1588,
+      0.1697,
+      0.1817,
+      0.1946,
+      0.2117,
+      0.2265,
+      0.2443,
+      0.2614,
+      0.279,
+      0.3019,
+      0.3217,
+      0.3485,
+      0.3776,
+      0.4091,
+      0.4589,
+      0.5012,
+      0.5475,
+      0.6036,
+      0.6525,
+      0.7115,
+      0.7664,
+      0.8311,
+      0.8777,
+      0.9111,
+      0.9389,
+      0.9662,
+      1.0
+    ],
+    "tpr": [
+      0.0,
+      0.215,
+      0.3237,
+      0.363,
+      0.3999,
+      0.4423,
+      0.4748,
+      0.5073,
+      0.5348,
+      0.5608,
+      0.584,
+      0.6084,
+      0.6334,
+      0.6547,
+      0.6778,
+      0.695,
+      0.7124,
+      0.7353,
+      0.7559,
+      0.7741,
+      0.7902,
+      0.8042,
+      0.8242,
+      0.8398,
+      0.8534,
+      0.8687,
+      0.8843,
+      0.8944,
+      0.908,
+      0.9191,
+      0.9303,
+      0.9407,
+      0.9493,
+      0.9576,
+      0.9646,
+      0.9717,
+      0.9787,
+      0.9854,
+      0.9899,
+      0.9922,
+      0.9956,
+      0.9974,
+      0.9984,
+      0.999,
+      0.9992,
+      0.9995,
+      0.9995,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "feature_importance": [
+    {
+      "feature": "marital_status",
+      "importance": 0.084
+    },
+    {
+      "feature": "capital_gain",
+      "importance": 0.0573
+    },
+    {
+      "feature": "age",
+      "importance": 0.052
+    },
+    {
+      "feature": "education_num",
+      "importance": 0.0288
+    },
+    {
+      "feature": "capital_loss",
+      "importance": 0.0151
+    },
+    {
+      "feature": "occupation",
+      "importance": 0.0138
+    },
+    {
+      "feature": "hours_per_week",
+      "importance": 0.0125
+    },
+    {
+      "feature": "relationship",
+      "importance": 0.0038
+    },
+    {
+      "feature": "workclass",
+      "importance": 0.0025
+    },
+    {
+      "feature": "sex",
+      "importance": 0.0021
+    },
+    {
+      "feature": "native_country",
+      "importance": 0.0006
+    },
+    {
+      "feature": "race",
+      "importance": 0.0001
+    }
+  ],
+  "comparison": [
+    {
+      "model": "Gradient Boosting",
+      "cv_accuracy": 0.8728,
+      "cv_f1": 0.7133,
+      "cv_roc_auc": 0.9284,
+      "cv_roc_auc_std": 0.0014,
+      "fit_seconds": 0.93
+    },
+    {
+      "model": "Random Forest",
+      "cv_accuracy": 0.8659,
+      "cv_f1": 0.6895,
+      "cv_roc_auc": 0.9193,
+      "cv_roc_auc_std": 0.002,
+      "fit_seconds": 0.45
+    },
+    {
+      "model": "Logistic Regression",
+      "cv_accuracy": 0.8518,
+      "cv_f1": 0.6622,
+      "cv_roc_auc": 0.9065,
+      "cv_roc_auc_std": 0.0016,
+      "fit_seconds": 0.09
+    }
+  ]
+}
