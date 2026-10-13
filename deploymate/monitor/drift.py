@@ -17,6 +17,10 @@ from scipy import stats
 # Common industry rule of thumb: PSI < 0.1 stable, 0.1-0.25 moderate, > 0.25 major shift.
 PSI_THRESHOLD = 0.2
 CRAMERS_V_THRESHOLD = 0.1
+# Categories rarer than this in the reference get pooled into "Other". With many
+# rare categories (native_country has 41), a 400-row batch looks "different" by
+# pure chance and inflates Cramér's V. Pooling removes those false alarms.
+RARE_CATEGORY_SHARE = 0.01
 _EPS = 1e-6  # avoids log(0) / divide-by-zero for empty bins
 
 
@@ -55,7 +59,16 @@ def numeric_drift(name: str, reference: pd.Series, current: pd.Series) -> Featur
     return FeatureDrift(name, "numeric", score, p_value, score >= PSI_THRESHOLD)
 
 
+def _pool_rare(reference: pd.Series, current: pd.Series):
+    """Map categories that are rare in the reference (and brand-new ones) to "Other"."""
+    shares = reference.value_counts(normalize=True)
+    common = set(shares[shares >= RARE_CATEGORY_SHARE].index)
+    pool = lambda s: s.where(s.isin(common) | s.isna(), "Other")  # noqa: E731
+    return pool(reference), pool(current)
+
+
 def categorical_drift(name: str, reference: pd.Series, current: pd.Series) -> FeatureDrift:
+    reference, current = _pool_rare(reference, current)
     categories = sorted(set(reference.dropna()) | set(current.dropna()), key=str)
     table = np.array([
         reference.value_counts().reindex(categories, fill_value=0).to_numpy(),
