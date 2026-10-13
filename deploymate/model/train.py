@@ -42,7 +42,6 @@ def compare_models(X, y, folds: int = 5) -> list[dict]:
             "cv_f1": round(result["test_f1"].mean(), 4),
             "cv_roc_auc": round(result["test_roc_auc"].mean(), 4),
             "cv_roc_auc_std": round(result["test_roc_auc"].std(), 4),
-            "fit_seconds": round(result["fit_time"].mean(), 2),
         })
     # ROC-AUC picks the winner: it measures ranking quality across all
     # thresholds and isn't fooled by the 76/24 class imbalance.

@@ -32,10 +32,10 @@ def main() -> None:
 
     print("Cross-validating (5 folds on the training data)...")
     comparison = compare_models(X_train, y_train)
-    print(f"\n{'model':<22}{'accuracy':>10}{'F1':>8}{'ROC-AUC':>10}{'fit (s)':>9}")
+    print(f"\n{'model':<22}{'accuracy':>10}{'F1':>8}{'ROC-AUC':>10}")
     for row in comparison:
         print(f"{row['model']:<22}{row['cv_accuracy']:>10.4f}{row['cv_f1']:>8.4f}"
-              f"{row['cv_roc_auc']:>10.4f}{row['fit_seconds']:>9.2f}")
+              f"{row['cv_roc_auc']:>10.4f}")
 
     best = comparison[0]["model"]
     print(f"\nWinner: {best}. Refitting on all training data...")
