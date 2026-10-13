@@ -20,6 +20,11 @@ openai
 streamlit
 plotly
 
+# Notebooks
+ipykernel
+nbformat
+nbclient
+
 # Testing
 pytest
 httpx
