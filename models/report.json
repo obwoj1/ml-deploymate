@@ -199,10 +199,10 @@
     },
     {
       "model": "Random Forest",
-      "cv_accuracy": 0.8659,
-      "cv_f1": 0.6895,
-      "cv_roc_auc": 0.9193,
-      "cv_roc_auc_std": 0.002
+      "cv_accuracy": 0.8657,
+      "cv_f1": 0.6893,
+      "cv_roc_auc": 0.9192,
+      "cv_roc_auc_std": 0.0019
     },
     {
       "model": "Logistic Regression",
