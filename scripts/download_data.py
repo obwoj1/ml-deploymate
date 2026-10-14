@@ -1,41 +1,49 @@
-"""Download the UCI Adult (Census Income) dataset into data/raw/."""
+"""Download the UCI Adult (Census Income) dataset into data/raw/.
 
-from pathlib import Path          # tool for working with file/folder locations
-import urllib.request             # built-in Python tool for downloading from the internet
+    python scripts/download_data.py          # skips files that already exist
+    python scripts/download_data.py --force  # re-download everything
 
-# Web address of the folder on the UCI website that holds the dataset
-BASE_URL = "https://archive.ics.uci.edu/dataset/2/adult"
+data/raw/ is gitignored, so every teammate (and the live server) runs this once.
+See docs/DATASET.md for what the data is.
+"""
 
-# The three files we want to download
-#   adult.data  = training data (~32,000 rows)
-#   adult.test  = test data (~16,000 rows)
-#   adult.names = text file describing the columns
+import argparse
+import io
+import ssl
+import sys
+import urllib.request
+import zipfile
+from pathlib import Path
+
+import certifi
+
+URL = "https://archive.ics.uci.edu/static/public/2/adult.zip"
 FILES = ["adult.data", "adult.test", "adult.names"]
-
-# Where to save the files: <project root>/data/raw
-# __file__ is this script's location, parents[1] goes up two folders to the project root
-RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
+RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
 
-def main() -> None:
-    # Create the data/raw folder if it doesn't already exist
+def download(force: bool = False) -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
+    if not force and all((RAW_DIR / f).exists() for f in FILES):
+        print(f"Already downloaded: {RAW_DIR} (use --force to re-download)")
+        return
 
-    # Go through each file in the list, one at a time
+    print(f"Downloading {URL} ...")
+    # certifi's CA bundle: python.org installs on macOS don't use the system certificates.
+    context = ssl.create_default_context(cafile=certifi.where())
+    with urllib.request.urlopen(URL, timeout=60, context=context) as response:
+        archive = zipfile.ZipFile(io.BytesIO(response.read()))
+
     for name in FILES:
-        dest = RAW_DIR / name                    # full save path for this file
-
-        # If we already downloaded it, skip it
-        if dest.exists():
-            print(f"Already have {name}, skipping.")
-            continue
-
-        print(f"Downloading {name}...")          # progress message
-        urllib.request.urlretrieve(f"{BASE_URL}/{name}", dest)   # download and save
-
-    print(f"Done. Files are in {RAW_DIR}")
+        (RAW_DIR / name).write_bytes(archive.read(name))
+        print(f"  saved data/raw/{name}")
+    print("Done.")
 
 
-# Only run main() when you run this file directly (not when another file imports it)
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--force", action="store_true", help="re-download even if files exist")
+    try:
+        download(parser.parse_args().force)
+    except OSError as err:
+        sys.exit(f"Download failed: {err}\nManual fallback: unzip {URL} into {RAW_DIR}")

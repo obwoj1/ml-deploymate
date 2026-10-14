@@ -4,6 +4,7 @@ numpy
 scikit-learn
 scipy
 joblib
+certifi
 
 # Backend
 fastapi
@@ -18,6 +19,11 @@ openai
 # Dashboard
 streamlit
 plotly
+
+# Notebooks
+ipykernel
+nbformat
+nbclient
 
 # Testing
 pytest

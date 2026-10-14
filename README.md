@@ -4,9 +4,9 @@
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Data pipeline, EDA, monitored model training & evaluation
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Drift simulation, monitoring engine & detector evaluation
-*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** - FastAPI backend, LLM assistant layer, Streamlit dashboard & deployment
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - 
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** -
+*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** -
 
 ---
 
@@ -52,29 +52,42 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 ---
 
 ## 📊 Dataset
-*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) *(proposed, to be confirmed in Phase 1)*
-*   **Description:** ~48,842 rows, 14 demographic/employment features (mixed numeric + categorical). Binary target: `income > 50K`.
-*   **Data Pipeline:** Not tracked in git. `scripts/download_data.py` will fetch it into `data/raw/`. Drift scenarios are generated from the held-out test set by `deploymate/simulate/`.
+*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) (1994 U.S. Census, CC BY 4.0)
+*   **Description:** 48,842 people (32,561 train / 16,281 test), 14 features: 6 numeric (age, hours per week, capital gain, …) and 8 categorical (workclass, education, occupation, …). Binary target: `income > 50K` (24% positive, so imbalanced).
+*   **Role in the project:** (1) trains the monitored classifier, (2) defines the "normal" reference distribution, (3) is replayed as simulated live traffic with labeled, injected drift to evaluate the detector.
+*   **Data Pipeline:** Not tracked in git (`data/raw/` is gitignored). Run `python scripts/download_data.py`, or unzip [adult.zip](https://archive.ics.uci.edu/static/public/2/adult.zip) into `data/raw/`. Full walkthrough, column dictionary, and cleaning notes: [docs/DATASET.md](docs/DATASET.md).
 
 ---
 
 ## 🧠 Model Architecture & Training
-*   **Algorithm:** Monitored model: Logistic Regression baseline → Random Forest / Gradient Boosting. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
+*   **Algorithm:** Monitored model: Gradient Boosting (`HistGradientBoostingClassifier`), chosen over Random Forest and a Logistic Regression baseline. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
 *   **Frameworks Used:** scikit-learn, FastAPI, SQLAlchemy, OpenAI API, Streamlit
-*   **Training Process:** *TBD (Phase 1–3)*
+*   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Three classifiers compared with stratified 5-fold cross-validation on the training split; the winner by ROC-AUC (robust to the 76/24 class imbalance) is refit on all training data and scored once on the held-out test split. Run `python scripts/train.py` (~15s) to reproduce; it saves `models/model.joblib` + `models/report.json`.
 
 ---
 
 ## 📈 Evaluation & Results
 *Results will be filled in as models are trained.*
 
-**Monitored model**
+**Monitored model: Gradient Boosting** (selected by 5-fold cross-validated ROC-AUC)
 
 | Metric | Training Set | Test Set |
 | :--- | :--- | :--- |
-| Accuracy | — | — |
-| F1-Score | — | — |
-| ROC-AUC | — | — |
+| Accuracy | 0.884 | 0.873 |
+| Precision | 0.805 | 0.773 |
+| Recall | 0.684 | 0.652 |
+| F1-Score | 0.740 | 0.707 |
+| ROC-AUC | 0.943 | 0.928 |
+
+**Model comparison** (5-fold cross-validation on the training set)
+
+| Model | CV Accuracy | CV F1 | CV ROC-AUC |
+| :--- | :--- | :--- | :--- |
+| **Gradient Boosting** | **0.873** | **0.713** | **0.928** |
+| Random Forest | 0.866 | 0.690 | 0.919 |
+| Logistic Regression (baseline) | 0.852 | 0.662 | 0.907 |
+
+*For reference, always predicting `<=50K` scores 0.764 test accuracy. Most important features (permutation importance): marital status, capital gain, age, education. Full report: [models/report.json](models/report.json). Exploration: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
 
 **Drift / anomaly detector** (on labeled injected-drift scenarios)
 
