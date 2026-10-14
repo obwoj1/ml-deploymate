@@ -4,7 +4,7 @@ from pathlib import Path          # tool for working with file/folder locations
 import urllib.request             # built-in Python tool for downloading from the internet
 
 # Web address of the folder on the UCI website that holds the dataset
-BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult"
+BASE_URL = "https://archive.ics.uci.edu/dataset/2/adult"
 
 # The three files we want to download
 #   adult.data  = training data (~32,000 rows)
