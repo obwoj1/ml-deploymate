@@ -69,10 +69,10 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 - **Adaptive thresholds:** rolling mean ± k·std per metric, learned from the "healthy" period. This covers the concept doc's "dynamically adjusting thresholds."
 - **Evaluation (this is what makes it real ML):** we generate labeled scenarios: healthy, gradual covariate drift, sudden shift, label drift, and noise/corruption. We measure the detector's **precision, recall, F1, and detection delay** (batches until the alert fires).
 
-### 4c. LLM layer (provider: pending, Claude recommended)
-- **Provider-agnostic:** all LLM calls go through one small interface in `deploymate/llm/` (`explain_alert`, `generate_config`). The rest of the code never imports a vendor SDK directly, so switching OpenAI ↔ Claude is a one-file change.
-- **Recommendation: Claude (Anthropic API), on Oba's account.** Oba has already shipped Claude API code (Morgan IT Portal), so there's less to learn. Structured JSON outputs are supported. Cost per alert explanation is about 1–2¢ on Claude Opus 5.5, or well under 1¢ on Claude Haiku 4.5 if we want cheaper. Either way the whole project should cost a few dollars at most.
-- **Tradeoff:** the concept doc says "OpenAI API." If we use Claude, we note the deviation in the README. The design and graded ML are the same either way.
+### 4c. LLM layer (provider: OpenAI, decided 2026-10-13)
+- **Provider: OpenAI, model `gpt-4o-mini`**, on Oba's account. This matches the concept doc ("OpenAI API"). The key lives only in `.env` (gitignored) and in the host's secrets for the live site.
+- **Provider-agnostic:** all LLM calls still go through one small interface in `deploymate/llm/`, so switching providers later is a one-file change.
+- **Offline fallback:** with no key (teammates, CI) or `LLM_OFFLINE_MODE=true`, explanations come from templates, so the dashboard always works.
 - `explain_alert(alert, recent_metrics)` → what happened, likely cause, suggested action.
 - `generate_config(form)` → Dockerfile + GitHub Actions workflow + `.env.example` for the user's model.
 - Structured outputs (JSON schema) so the UI can render the results cleanly.
@@ -156,7 +156,7 @@ Per-person checklists: [docs/TASKS.md](docs/TASKS.md).
 1. ~~Third member~~ Aubrenesia Tomilson (`aubrenesia`), invited 2026-10-06.
 2. ~~Dr. Dacon's GitHub username~~ `daconjam` (invited)
 3. ~~Marissa's GitHub username?~~ `sadiebird5` (verified: Marissa Savage)
-4. LLM API key: Oba's account. Provider decision pending (Claude recommended, see §4c).
+4. ~~LLM provider~~ OpenAI `gpt-4o-mini`, key in Oba's `.env` (see §4c).
 5. Deadlines and rubric: TBD from Dr. Dacon.
 
 ## 11. Status log

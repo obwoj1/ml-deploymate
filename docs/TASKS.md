@@ -78,7 +78,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 **Oba: Real model + monitoring engine**
 - [x] `scripts/train.py`: LogReg vs Random Forest vs Gradient Boosting, cross-validated; best saved to `models/model.joblib` (Gradient Boosting won)
 - [x] Evaluation: accuracy, F1, ROC-AUC, confusion matrix, ROC data, permutation importance → `models/report.json` (built into train.py)
-- [ ] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`run_batch()`)
+- [x] `deploymate/monitor/metrics.py`, `anomaly.py` (Isolation Forest + adaptive thresholds), `pipeline.py` (`Monitor.check()`)
 
 **Aubrenesia: Overview + Alerts pages** (using the mock service)
 - [ ] Overview: status cards (`st.metric`), recent-alerts table
@@ -124,7 +124,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 
 ## 🙋 Pick-up list: choose what you want (added 2026-10-08)
 
-Instead of assigning everything, **teammates pick tasks they're interested in**. Oba carries the ML + backend; these are smaller, self-contained tasks anyone can take.
+Instead of assigning everything, **teammates pick tasks they're interested in**. Oba carries the ML + backend; these are self-contained tasks anyone can take. Each one is also a GitHub issue (#9–#19) with step-by-step instructions.
 
 **How to claim one:**
 1. Open a **GitHub Issue** (repo → Issues → New issue) with the task name, and assign it to yourself so nobody doubles up.
@@ -132,22 +132,22 @@ Instead of assigning everything, **teammates pick tasks they're interested in**.
 3. Push and open a **PR** that says `Closes #<issue number>`.
 4. A teammate reviews and merges. **We all review each other's PRs.**
 
-| Task | Difficulty | Needs |
-|---|---|---|
-| Sketch wireframes for the 5 dashboard pages (paper or Figma → `assets/wireframes/`) | 🟢 Easy | Nothing |
-| Test `docs/LOCAL_SETUP.md` on your laptop; fix any confusing step | 🟢 Easy | Nothing |
-| Research 2–3 real tools like ours (Evidently AI, WhyLabs, Arize) for a "related work" slide | 🟢 Easy | Nothing |
-| Presentation slide outline (intro, problem, dataset, demo, results, future work) | 🟢 Easy | Nothing |
-| Pick the dashboard theme: colors + font in `.streamlit/config.toml` | 🟢 Easy | Nothing |
-| Streamlit app shell: `app/Home.py` + sidebar navigation + 5 empty pages | 🟡 Medium | Streamlit basics |
-| Overview page: status cards with `st.metric` from `service.get_overview()` | 🟡 Medium | App shell |
-| Alerts page: table from `service.list_alerts()` + "Explain" button | 🟡 Medium | App shell |
-| Model Performance page: Plotly confusion matrix + ROC curve from `service.get_model_report()` | 🟡 Medium | App shell |
-| Live Monitor page: scenario dropdown + live-updating line chart from `service.run_scenario()` | 🟠 Harder | App shell |
-| Config Generator page: form → `service.generate_config()` → code blocks + download buttons | 🟡 Medium | App shell |
-| Record `demo.gif` + write the demo script | 🟢 Easy | Working dashboard (later) |
-| README "Responsible use / bias" section (see docs/DATASET.md §6) | 🟢 Easy | Nothing |
-| Review any open PR (read it, leave a comment, approve) | 🟢 Easy | Nothing |
+| Task | Needs |
+|---|---|
+| Sketch wireframes for the 5 dashboard pages (paper or Figma → `assets/wireframes/`) | Nothing |
+| Test `docs/LOCAL_SETUP.md` on your laptop; fix any confusing step | Nothing |
+| Research 2–3 real tools like ours (Evidently AI, WhyLabs, Arize) for a "related work" slide | Nothing |
+| Presentation slide outline (intro, problem, dataset, demo, results, future work) | Nothing |
+| Pick the dashboard theme: colors + font in `.streamlit/config.toml` | Nothing |
+| Streamlit app shell: `app/Home.py` + sidebar navigation + 5 empty pages | Streamlit basics |
+| Overview page: status cards with `st.metric` from `service.get_overview()` | App shell |
+| Alerts page: table from `service.list_alerts()` + "Explain" button | App shell |
+| Model Performance page: Plotly confusion matrix + ROC curve from `service.get_model_report()` | App shell |
+| Live Monitor page: scenario dropdown + live-updating line chart from `service.run_scenario()` | App shell |
+| Config Generator page: form → `service.generate_config()` → code blocks + download buttons | App shell |
+| Record `demo.gif` + write the demo script | Working dashboard (later) |
+| README "Responsible use / bias" section (see docs/DATASET.md §6) | Nothing |
+| Review any open PR (read it, leave a comment, approve) | Nothing |
 
 Stuck? Comment on your issue or ping the group chat. Asking early is faster than guessing.
 
