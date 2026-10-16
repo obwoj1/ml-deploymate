@@ -89,14 +89,27 @@ Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SE
 
 *For reference, always predicting `<=50K` scores 0.764 test accuracy. Most important features (permutation importance): marital status, capital gain, age, education. Full report: [models/report.json](models/report.json). Exploration: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
 
-**Drift / anomaly detector** (on labeled injected-drift scenarios)
+**Drift / anomaly monitor** (10 simulated runs per scenario, 40 batches × 400 rows each; independent random seeds)
 
-| Metric | Value |
-| :--- | :--- |
-| Precision | — |
-| Recall | — |
-| F1-Score | — |
-| Mean detection delay (batches) | — |
+| Scenario | Precision | Recall | F1 | False-alarm rate | Detection delay (batches) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| healthy | – | – | – | 0.5% | – |
+| gradual_shift | 0.995 | 0.739 | 0.848 | 0.8% | 7.3 |
+| sudden_shift | 0.990 | 1.000 | 0.995 | 1.0% | 0.0 |
+| category_shift | 0.995 | 1.000 | 0.998 | 0.5% | 0.0 |
+| missing_values | 1.000 | 1.000 | 1.000 | 0.0% | 0.0 |
+| noise | 0.990 | 1.000 | 0.995 | 1.0% | 0.0 |
+| **Overall** | **0.992** | **0.932** | **0.961** | **0.6%** | **1.5** |
+
+**What each half contributes (overall):**
+
+| Detector | Precision | Recall | F1 | False-alarm rate |
+| :--- | :--- | :--- | :--- | :--- |
+| Drift tests only | 1.000 | 0.931 | 0.965 | 0.0% |
+| Anomaly detector only | 0.975 | 0.287 | 0.444 | 0.6% |
+| Combined (DeployMate) | 0.992 | 0.932 | 0.961 | 0.6% |
+
+*Every broken run was detected (50/50). Sudden problems are caught on the very first broken batch; gradual drift takes ~7 batches because the earliest shifts are tiny. Reproduce with `python scripts/evaluate_monitor.py`; raw numbers in [assets/monitor_results.json](assets/monitor_results.json).*
 
 *Confusion matrices, ROC curves, and drift plots will go in [`assets/`](assets/).*
 
