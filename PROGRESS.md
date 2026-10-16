@@ -91,6 +91,11 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-15
+- **Monitor evaluation done** (`deploymate/monitor/evaluate.py`, `scripts/evaluate_monitor.py`): 10 runs per scenario, scored at batch level. Overall combined: precision 0.992, recall 0.932, F1 0.961, false-alarm rate 0.6%, mean detection delay 1.5 batches, 50/50 broken runs detected. Results in README + `assets/monitor_results.json`.
+- **Evaluation bug found + fixed:** a shared seed made every scenario replay identical healthy batches, so one false alarm was counted up to 6 times (showed 1.4%). Each scenario now gets its own seed; calibration seed moved to 100000 so it never overlaps.
+- **Honest finding (ablation):** drift tests alone score F1 0.965 with 0% false alarms; the anomaly detector alone has recall 0.287 and adds 0.6% false alarms for +0.1% recall. On THESE scenarios it's mostly redundant (except it independently catches 100% of missing_values). It's a label-free safety net for problems that don't show up as column drift. Open decision for Oba: keep it in the alert, or show it as an "info" signal only.
+
 ### 2026-10-13
 - OpenAI key added to Oba's `.env` and verified; provider = OpenAI `gpt-4o-mini`.
 - **Created GitHub issues #9–#19** for Marissa and Bree, each with step-by-step instructions and tested Streamlit starter code (every snippet run through Streamlit's AppTest first): #9 setup, #10 wireframes, #11 theme, #12 app shell (do first), #13 Overview, #14 Live Monitor, #15 Model Performance, #16 Alerts, #17 Config Generator, #18 presentation outline, #19 related-work research. Unassigned; they pick.
