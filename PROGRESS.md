@@ -92,6 +92,11 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-17
+- **AI explanations built:** `deploymate/llm/explain.py`. `explain_alert(report)` sends only the alert's facts (drifted features in plain words, before/after numbers, severity, model-behavior metrics; no raw rows) to OpenAI `gpt-4o-mini` with structured output (summary / likely_cause / suggested_action) and a "use only these numbers" system prompt. Falls back to a rule-based template when there's no key, `LLM_OFFLINE_MODE=true`, or any OpenAI error, so it never breaks the dashboard. 9 tests with a fake client (never hits the real API). `simulate.py --explain` shows it.
+- **Blocker:** OpenAI returned `credit_balance_exhausted`: the key is valid but the account has no prepaid credits. Oba needs to add credits (platform.openai.com → Settings → Billing; $5 minimum). Until then, explanations come from the template.
+- Also: Prime Video was stuck at ~550% CPU for 4 days (the fan noise); unrelated to the project.
+
 ### 2026-10-15
 - **Monitor evaluation done** (`deploymate/monitor/evaluate.py`, `scripts/evaluate_monitor.py`): 10 runs per scenario, scored at batch level. Overall combined: precision 0.992, recall 0.932, F1 0.961, false-alarm rate 0.6%, mean detection delay 1.5 batches, 50/50 broken runs detected. Results in README + `assets/monitor_results.json`.
 - **Evaluation bug found + fixed:** a shared seed made every scenario replay identical healthy batches, so one false alarm was counted up to 6 times (showed 1.4%). Each scenario now gets its own seed; calibration seed moved to 100000 so it never overlaps.
