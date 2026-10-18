@@ -95,7 +95,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 ## Sprint 3: Real backend + LLM, swap mock → real
 
 **Oba**
-- [ ] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/`
+- [x] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/` (overall F1 0.961, 0.6% false alarms)
 - [ ] `deploymate/llm/`: `explain_alert`, `generate_config`, with offline fallback
 - [ ] `api/`: FastAPI endpoints (`/predict`, `/batches`, `/alerts`, `/assistant/*`)
 - [ ] Swap `service.py` internals from mock → real

@@ -1,0 +1,265 @@
+{
+  "runs_per_scenario": 10,
+  "batches_per_run": 40,
+  "batch_size": 400,
+  "results": {
+    "drift_only": {
+      "healthy": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": null,
+        "runs_detected": "-",
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 400
+      },
+      "gradual_shift": {
+        "precision": 1.0,
+        "recall": 0.7357,
+        "f1": 0.8477,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 7.4,
+        "runs_detected": "10/10",
+        "tp": 206,
+        "fp": 0,
+        "fn": 74,
+        "tn": 120
+      },
+      "sudden_shift": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "category_shift": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "missing_values": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "noise": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9315,
+        "f1": 0.9645,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 1.48,
+        "runs_detected": "50/50",
+        "tp": 1006,
+        "fp": 0,
+        "fn": 74,
+        "tn": 1320
+      }
+    },
+    "anomaly_only": {
+      "healthy": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_alarm_rate": 0.005,
+        "mean_detection_delay": null,
+        "runs_detected": "-",
+        "tp": 0,
+        "fp": 2,
+        "fn": 0,
+        "tn": 398
+      },
+      "gradual_shift": {
+        "precision": 0.95,
+        "recall": 0.0679,
+        "f1": 0.1267,
+        "false_alarm_rate": 0.0083,
+        "mean_detection_delay": 15.625,
+        "runs_detected": "8/10",
+        "tp": 19,
+        "fp": 1,
+        "fn": 261,
+        "tn": 119
+      },
+      "sudden_shift": {
+        "precision": 0.9649,
+        "recall": 0.275,
+        "f1": 0.428,
+        "false_alarm_rate": 0.01,
+        "mean_detection_delay": 3.6,
+        "runs_detected": "10/10",
+        "tp": 55,
+        "fp": 2,
+        "fn": 145,
+        "tn": 198
+      },
+      "category_shift": {
+        "precision": 0.9583,
+        "recall": 0.115,
+        "f1": 0.2054,
+        "false_alarm_rate": 0.005,
+        "mean_detection_delay": 5.7778,
+        "runs_detected": "9/10",
+        "tp": 23,
+        "fp": 1,
+        "fn": 177,
+        "tn": 199
+      },
+      "missing_values": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "noise": {
+        "precision": 0.8667,
+        "recall": 0.065,
+        "f1": 0.1209,
+        "false_alarm_rate": 0.01,
+        "mean_detection_delay": 3.75,
+        "runs_detected": "8/10",
+        "tp": 13,
+        "fp": 2,
+        "fn": 187,
+        "tn": 198
+      },
+      "overall": {
+        "precision": 0.9748,
+        "recall": 0.287,
+        "f1": 0.4435,
+        "false_alarm_rate": 0.0061,
+        "mean_detection_delay": 5.4,
+        "runs_detected": "45/50",
+        "tp": 310,
+        "fp": 8,
+        "fn": 770,
+        "tn": 1312
+      }
+    },
+    "combined": {
+      "healthy": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_alarm_rate": 0.005,
+        "mean_detection_delay": null,
+        "runs_detected": "-",
+        "tp": 0,
+        "fp": 2,
+        "fn": 0,
+        "tn": 398
+      },
+      "gradual_shift": {
+        "precision": 0.9952,
+        "recall": 0.7393,
+        "f1": 0.8484,
+        "false_alarm_rate": 0.0083,
+        "mean_detection_delay": 7.3,
+        "runs_detected": "10/10",
+        "tp": 207,
+        "fp": 1,
+        "fn": 73,
+        "tn": 119
+      },
+      "sudden_shift": {
+        "precision": 0.9901,
+        "recall": 1.0,
+        "f1": 0.995,
+        "false_alarm_rate": 0.01,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 2,
+        "fn": 0,
+        "tn": 198
+      },
+      "category_shift": {
+        "precision": 0.995,
+        "recall": 1.0,
+        "f1": 0.9975,
+        "false_alarm_rate": 0.005,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 1,
+        "fn": 0,
+        "tn": 199
+      },
+      "missing_values": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_alarm_rate": 0.0,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "tn": 200
+      },
+      "noise": {
+        "precision": 0.9901,
+        "recall": 1.0,
+        "f1": 0.995,
+        "false_alarm_rate": 0.01,
+        "mean_detection_delay": 0.0,
+        "runs_detected": "10/10",
+        "tp": 200,
+        "fp": 2,
+        "fn": 0,
+        "tn": 198
+      },
+      "overall": {
+        "precision": 0.9921,
+        "recall": 0.9324,
+        "f1": 0.9613,
+        "false_alarm_rate": 0.0061,
+        "mean_detection_delay": 1.46,
+        "runs_detected": "50/50",
+        "tp": 1007,
+        "fp": 8,
+        "fn": 73,
+        "tn": 1312
+      }
+    }
+  }
+}
