@@ -40,7 +40,7 @@ The LLM is the assistant layer on top.
 - [x] Marissa's first commit: created `scripts/download_data.py` (empty placeholder) via PR #1, merged 2026-10-08
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
-- [ ] Aubrenesia pushes her first commit
+- [x] Aubrenesia pushes her first commit
 - [x] LLM provider decided: OpenAI `gpt-4o-mini` (2026-10-13)
 
 ## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
@@ -53,7 +53,7 @@ The LLM is the assistant layer on top.
 - [x] Drift simulator (`deploymate/simulate/`), 52 tests passing
 
 **Aubrenesia (frontend)**
-- [ ] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
+- [x] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
 
 **Marissa (frontend)**
 - [ ] Wireframes for Live Monitor + Model Performance; Streamlit/Plotly basics; review Oba's PRs
@@ -83,13 +83,17 @@ The LLM is the assistant layer on top.
 
 ## ❓ Open questions
 
-1. ~~Third team member~~ Aubrenesia Tomilson (`aubrenesia`).
+1. ~~Third team member~~ Aubrenesia Tomlinson (`aubrenesia`).
 2. ~~LLM provider~~ OpenAI, key set up in Oba's `.env`.
 3. **Deadlines + rubric:** not posted yet.
 
 ---
 
 ## 📓 Session log
+
+### 2026-10-18
+- **Streamlit App and Navigation:** Entry point, sidebar naviagtion, page layout, theme, and empty stub pages have been committed. 
+- **Sketches of Page Wireframes:** Overview, Alerts, and Config Generator Wireframes sketches and uploaded in assets directory.
 
 ### 2026-10-15
 - **Monitor evaluation done** (`deploymate/monitor/evaluate.py`, `scripts/evaluate_monitor.py`): 10 runs per scenario, scored at batch level. Overall combined: precision 0.992, recall 0.932, F1 0.961, false-alarm rate 0.6%, mean detection delay 1.5 batches, 50/50 broken runs detected. Results in README + `assets/monitor_results.json`.
@@ -129,7 +133,7 @@ The LLM is the assistant layer on top.
 
 ### 2026-10-06: Third member
 - Third teammate's GitHub is `aubrenesia`; invited with write access. Proposed role: API + DB + LLM layer + dashboard + deployment.
-- 2026-10-07: name confirmed as Aubrenesia Tomilson; added to README.
+- 2026-10-07: name confirmed as Aubrenesia Tomlinson; added to README.
 - **Next:** run a team kickoff where everyone confirms their area and clones the repo.
 
 ### 2026-10-05: Kickoff / scaffolding
