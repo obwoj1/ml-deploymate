@@ -8,37 +8,13 @@ See docs/DATASET.md for what the data is.
 """
 
 import argparse
-import io
-import ssl
 import sys
-import urllib.request
-import zipfile
 from pathlib import Path
 
-import certifi
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-URL = "https://archive.ics.uci.edu/static/public/2/adult.zip"
-FILES = ["adult.data", "adult.test", "adult.names"]
-RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
-
-
-def download(force: bool = False) -> None:
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    if not force and all((RAW_DIR / f).exists() for f in FILES):
-        print(f"Already downloaded: {RAW_DIR} (use --force to re-download)")
-        return
-
-    print(f"Downloading {URL} ...")
-    # certifi's CA bundle: python.org installs on macOS don't use the system certificates.
-    context = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(URL, timeout=60, context=context) as response:
-        archive = zipfile.ZipFile(io.BytesIO(response.read()))
-
-    for name in FILES:
-        (RAW_DIR / name).write_bytes(archive.read(name))
-        print(f"  saved data/raw/{name}")
-    print("Done.")
-
+from deploymate.data.download import URL, download  # noqa: E402
+from deploymate.data.load import RAW_DIR  # noqa: E402
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
