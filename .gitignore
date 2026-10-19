@@ -35,3 +35,6 @@ models/*.joblib
 
 # graphify knowledge-graph output (generated locally)
 graphify-out/
+
+# Private team notes (planning, progress log, study guide): kept locally, never published
+team-notes/
