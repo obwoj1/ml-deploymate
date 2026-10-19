@@ -25,8 +25,10 @@ model, no API key, only `requirements.txt` installed, Python 3.13):
    - **Python version: 3.13** (the packages are pinned for 3.13)
    - **Secrets** (optional, only for real AI explanations; **Oba should type this in himself**):
      ```toml
-     OPENAI_API_KEY = "sk-..."
+     ANTHROPIC_API_KEY = "sk-ant-..."
      ```
+     Use a key that belongs to a **workspace** (console.anthropic.com → Settings → API keys).
+     An organization-level key also needs `ANTHROPIC_WORKSPACE_ID = "wrkspc_..."`.
      Never put the key in the repo or in a chat. Without it, explanations use the template.
 5. Click **Deploy**. The first build takes 2–4 minutes. Then the first page load takes
    ~10–15 seconds (downloading the data + training the model); after that it's instant.
