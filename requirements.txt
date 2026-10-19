@@ -1,30 +1,23 @@
+# What the app needs to run (this is what the live server installs).
+# Dev tools (tests, notebooks) are in requirements-dev.txt.
+
 # Core ML
-pandas
-numpy
-scikit-learn
-scipy
-joblib
-certifi
+pandas==3.0.6
+numpy==2.5.3
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
+certifi==2026.7.22
 
-# Backend
-fastapi
-uvicorn[standard]
-sqlalchemy
-pydantic-settings
-python-dotenv
-
-# LLM
-openai
+# AI explanations
+openai==3.26.1
+pydantic==2.14.0
+python-dotenv==1.2.4
 
 # Dashboard
-streamlit
-plotly
+streamlit==1.65.0
+plotly==7.1.0
 
-# Notebooks
-ipykernel
-nbformat
-nbclient
-
-# Testing
-pytest
-httpx
+# API
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
