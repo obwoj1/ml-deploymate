@@ -1,8 +1,8 @@
 # How ML DeployMate Works: The Complete Explanation
 
 > Everything about the project in one place: what each part does, **how** it works, and **why** we built it that way.
-> Written so all three of us can explain any part in the presentation or when Dr. Dacon asks.
 > Every number here comes from the actual code and results files (as of 2026-10-19).
+> Live application: https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app
 
 **Contents**
 1. [The big picture](#1-the-big-picture)
@@ -13,7 +13,7 @@
 6. [Drift detection: the core of DeployMate](#6-drift-detection-the-core-of-deploymate)
 7. [The simulator: fake live traffic](#7-the-simulator-fake-live-traffic)
 8. [The anomaly detector](#8-the-anomaly-detector)
-9. [Evaluating the monitor: our headline result](#9-evaluating-the-monitor-our-headline-result)
+9. [Evaluating the monitor](#9-evaluating-the-monitor)
 10. [AI explanations](#10-ai-explanations)
 11. [The service layer](#11-the-service-layer)
 12. [The API](#12-the-api)
@@ -21,9 +21,8 @@
 14. [Testing](#14-testing)
 15. [Deployment](#15-deployment)
 16. [Limitations and future work](#16-limitations-and-future-work)
-17. [Questions we might get, with answers](#17-questions-we-might-get-with-answers)
-18. [Glossary](#18-glossary)
-19. [File map](#19-file-map)
+17. [Glossary](#17-glossary)
+18. [File map](#18-file-map)
 
 ---
 
@@ -44,6 +43,7 @@ The dangerous part: **in real life you usually don't find out the correct answer
 | What | Result |
 |---|---|
 | Model accuracy (test set) | **87.3%** (ROC-AUC 0.928) |
+| Live application | https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app |
 | Monitor precision (when it alerts, is it right?) | **100%** |
 | Monitor recall (how many broken batches does it catch?) | **93.2%** |
 | False alarms on healthy data | **0%** |
@@ -76,7 +76,6 @@ The dangerous part: **in real life you usually don't find out the correct answer
    └──────────────┘   └──────────────┘
 ```
 
-|
 ---
 
 ## 3. The dataset
@@ -154,7 +153,7 @@ The "always guess ≤$50K" shortcut scores **76.4%**. That's why **accuracy alon
 ### 5.3 Step 2: compare three models with cross-validation
 | Model | How it works (simply) | CV accuracy | CV F1 | **CV ROC-AUC** |
 |---|---|---|---|---|
-| **Gradient Boosting** ✅ | Builds many small decision trees one after another; each new tree fixes the previous ones' mistakes | 0.873 | 0.713 | **0.928** |
+| **Gradient Boosting** (selected) | Builds many small decision trees one after another; each new tree fixes the previous ones' mistakes | 0.873 | 0.713 | **0.928** |
 | Random Forest | Builds 300 decision trees independently and lets them vote | 0.866 | 0.690 | 0.919 |
 | Logistic Regression | Draws one weighted line between the two classes | 0.852 | 0.662 | 0.907 |
 
@@ -181,8 +180,8 @@ The "always guess ≤$50K" shortcut scores **76.4%**. That's why **accuracy alon
 
   | | Predicted ≤50K | Predicted >50K |
   |---|---|---|
-  | **Actually ≤50K** | 11,697 ✅ | 738 ❌ |
-  | **Actually >50K** | 1,338 ❌ | 2,508 ✅ |
+  | **Actually ≤50K** | 11,697 (correct) | 738 (incorrect) |
+  | **Actually >50K** | 1,338 (incorrect) | 2,508 (correct) |
 
   The model misses some high earners (recall 0.65). That's normal for an imbalanced dataset, and fine for our purpose: **the model is the thing being monitored, not the product.**
 
@@ -203,7 +202,13 @@ The "always guess ≤$50K" shortcut scores **76.4%**. That's why **accuracy alon
 
 **Why permutation importance:** it works the same way for any model type, and it measures the *original* columns (not the dozens of one-hot columns).
 
-### 5.6 Why the trained model file isn't on GitHub
+### 5.6 Why accuracy is about 87%
+- The features do not contain everything that determines income (industry, location, experience), so records with identical features can have different labels. This sets a ceiling on achievable accuracy; published results on this dataset are roughly 85–88%.
+- Hyperparameter tuning (lower learning rate, more iterations, early stopping, L2 regularization) changed cross-validated accuracy from 0.8728 to 0.8731.
+- Lowering the decision threshold from 0.5 to 0.4 (selected on training-set cross-validation) raises test recall from 0.652 to 0.728 and F1 from 0.707 to 0.719, at the cost of accuracy (0.873 to 0.866). The default threshold of 0.5 is kept.
+- Further options: other boosting libraries (XGBoost, LightGBM), feature engineering, class weighting, and additional features.
+
+### 5.7 Why the trained model file isn't committed
 `models/model.joblib` is gitignored. Saved scikit-learn models can break when library versions change, and retraining takes about 1 second. Anyone (including the live site) recreates it with `python scripts/train.py`. The **results** (`models/report.json`) *are* committed, because the dashboard displays them.
 
 ---
@@ -312,11 +317,11 @@ The evaluation (section 9) showed that letting the anomaly detector trigger aler
 - **Alerts come from the drift tests only.**
 - The anomaly detector is **still computed and shown on the dashboard** as extra information. It's a label-free safety net for problems that don't show up as column drift (and it independently catches 100% of `missing_values` batches).
 
-This decision is based on our own measurements, which is a good point to make in the presentation.
+This decision is based on the measurements in section 9.
 
 ---
 
-## 9. Evaluating the monitor: our headline result
+## 9. Evaluating the monitor
 
 **Files:** `deploymate/monitor/evaluate.py`, `scripts/evaluate_monitor.py` · **Results:** `assets/monitor_results.json`
 
@@ -324,8 +329,8 @@ This decision is based on our own measurements, which is a good point to make in
 Every batch decision falls into one of four boxes:
 | | Monitor alerted | Monitor stayed quiet |
 |---|---|---|
-| **Batch really broken** | ✅ Caught (true positive) | ❌ Missed (false negative) |
-| **Batch really healthy** | ❌ False alarm (false positive) | ✅ Quiet (true negative) |
+| **Batch really broken** | Caught (true positive) | Missed (false negative) |
+| **Batch really healthy** | False alarm (false positive) | Quiet (true negative) |
 
 | Metric | Question it answers | Formula |
 |---|---|---|
@@ -399,7 +404,7 @@ If there's **no API key, no credits, the internet is down, or the AI refuses**, 
 
 The dashboard always works: for teammates without a key, in automated tests, and during the live demo.
 
-**About the cost:** API usage is billed separately from ChatGPT/Claude subscriptions (both APIs are prepaid). Without a key or credits, the template is used.
+**Cost:** each explanation costs well under one cent. Without a key, the template is used.
 
 ---
 
@@ -444,13 +449,13 @@ The dashboard always works: for teammates without a key, in automated tests, and
 
 - **Every endpoint is a thin wrapper around `service.py`**, so the API and dashboard always agree.
 - **Input validation:** e.g. age must be 17–90; invalid requests get a clear error instead of a crash.
-- **`/docs`** is an automatic interactive page where you can try every endpoint in the browser, which is good for the presentation.
+- **`/docs`** is an automatic interactive page where you can try every endpoint in the browser.
 
 ---
 
 ## 13. The dashboard
 
-**Folder:** `app/` · **Run:** `streamlit run app/Home.py` · **Built by:** Marissa and Bree
+**Folder:** `app/` · **Run:** `streamlit run app/Home.py` from the project root · **Live:** https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app
 
 | Page | Shows |
 |---|---|
@@ -467,7 +472,7 @@ The dashboard always works: for teammates without a key, in automated tests, and
 
 ## 14. Testing
 
-**97 automated tests** in `tests/`, run with `pytest`, and **on every pull request automatically** (GitHub Actions CI).
+**102 automated tests** in `tests/`, run with `pytest`, and **on every pull request automatically** (GitHub Actions CI).
 
 | Test file | Checks |
 |---|---|
@@ -492,13 +497,13 @@ Full guide: [DEPLOY.md](DEPLOY.md).
 - **Streamlit Community Cloud** (free), deploying from the `main` branch, entry point `app/Home.py`, Python 3.13.
 - **Tested from a fresh copy** of the repo with no data, no model and no key: it installs in ~20 seconds, sets itself up, and every page loads on real data.
 - **The API key** goes in Streamlit's **Secrets** settings, never in the code.
-- ⚠️ **Free apps sleep after a few days with no visitors. Open the site 10 minutes before presenting.**
+- Every merge into `main` redeploys the app automatically.
+- Free-tier apps sleep after inactivity; the first visit afterwards restarts the app.
 
 ---
 
 ## 16. Limitations and future work
 
-Being upfront about these shows we understand the project:
 
 | Limitation | Future work |
 |---|---|
@@ -512,41 +517,7 @@ Being upfront about these shows we understand the project:
 
 ---
 
-## 17. Questions we might get, with answers
-
-**"Why not just monitor accuracy?"**
-In production you don't know the correct answers until much later. Accuracy also barely moved in our tests (87.1% → 86.5%) even when the data clearly changed. Drift detection is the **early warning**.
-
-**"Why Gradient Boosting?"**
-It won all three cross-validated metrics (ROC-AUC 0.928 vs 0.919 vs 0.907). Income depends on combinations of features, which tree models capture.
-
-**"How do you know the monitor works?"**
-We broke data on purpose in 5 realistic ways, ran each scenario 10 times (2,400 batches), and measured: 100% precision, 93% recall, 0 false alarms, every broken run detected.
-
-**"Why is recall only 93%?"**
-All of the misses come from the earliest batches of *gradual* drift, where the shift is only +1–2 years of age. Every sudden problem was caught immediately, and every gradual run was eventually detected.
-
-**"Why PSI and Cramér's V instead of p-values?"**
-With big batches, p-values flag meaningless tiny differences. Effect sizes measure whether the change is *big*.
-
-**"Isn't 100% precision suspicious?"**
-It's measured on 1,320 healthy batches across independent runs. We found and fixed two sources of false alarms along the way (rare countries, and the Isolation Forest default), and we documented both.
-
-**"Did you look at the test set while choosing the model?"**
-No. Model selection used cross-validation on training data only. The test set was used once, at the end.
-
-**"Why Claude and not OpenAI?"**
-The concept doc said OpenAI, but the code is provider-agnostic: Claude is used when its key is set, OpenAI otherwise. We switched because our OpenAI account had no API credits. The explanations are grounded in the same measured numbers either way.
-
-**"Can the AI make things up?"**
-It only receives the measured numbers and is instructed to use only those. If it fails or isn't available, a template built from the same numbers is used.
-
-**"What would you do with more time?"**
-Real data streams, concept-drift detection with delayed labels, cumulative tests for gradual drift, and fairness monitoring.
-
----
-
-## 18. Glossary
+## 17. Glossary
 
 | Term | Plain meaning |
 |---|---|
@@ -575,11 +546,11 @@ Real data streams, concept-drift detection with delayed labels, cumulative tests
 
 ---
 
-## 19. File map
+## 18. File map
 
 ```
 ml-deploymate/
-├── deploymate/                 the core Python package (Oba)
+├── deploymate/                 core Python package
 │   ├── data/load.py            load + clean the dataset
 │   ├── data/download.py        download the dataset
 │   ├── model/pipeline.py       preprocessing + model, scoring
@@ -593,8 +564,8 @@ ml-deploymate/
 │   ├── llm/explain.py          AI explanations + template fallback
 │   ├── service.py              the one module the dashboard + API use
 │   └── mock_service.py         demo-data fallback
-├── api/main.py                 FastAPI app (Oba)
-├── app/                        Streamlit dashboard (Marissa + Bree)
+├── api/main.py                 FastAPI application
+├── app/                        Streamlit dashboard
 ├── scripts/
 │   ├── download_data.py        python scripts/download_data.py
 │   ├── train.py                python scripts/train.py
@@ -603,6 +574,6 @@ ml-deploymate/
 ├── notebooks/01_eda.ipynb      data exploration + baseline
 ├── models/report.json          model results (dashboard data)
 ├── assets/monitor_results.json monitor evaluation results
-├── tests/                      97 automated tests
-└── docs/                       DATASET, DEPLOY, TASKS, LOCAL_SETUP, this file
+├── tests/                      102 automated tests
+└── docs/                       DATASET, DEPLOY, LOCAL_SETUP, this file
 ```
