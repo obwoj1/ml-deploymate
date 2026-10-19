@@ -92,6 +92,12 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-19
+- **Real `service.py`:** the dashboard now runs on the real model, monitor and AI explanations. Same function names and shapes as before, so pages built on the mock work unchanged. First call ~3s (load data + model, calibrate monitor), then cached. Alerts from `run_scenario()` are recorded and show up in `list_alerts()` / `get_overview()`; a fresh server seeds a few demo alerts so the Alerts page isn't empty. If the dataset or model is missing it downloads/trains automatically (for the live site). Falls back to demo data (`mock_service.py`) if startup fails or `DEPLOYMATE_MOCK=true`; `get_overview()["mock"]` says which.
+- Contract tests now run in both modes (real skipped in CI without the dataset). Caught a real mismatch: mock called the blank-fields metric `missing_rate`, real calls it `unknown_rate`. Mock fixed to match.
+- Dataset download moved to `deploymate/data/download.py` (script is now a thin wrapper).
+- Teammates: Aubrenesia opened PR #22 (app shell, theme, stub pages, wireframes); Marissa built the same app shell + a working Overview page on branch `frontend-app-shell` (pushed, no PR). Overlap to sort out at today's team meeting. Resolved #22's PROGRESS.md conflict (kept both entries). Her name is **Tomlinson** (docs had "Tomilson"; her PR fixes it).
+
 ### 2026-10-17
 - **AI explanations built:** `deploymate/llm/explain.py`. `explain_alert(report)` sends only the alert's facts (drifted features in plain words, before/after numbers, severity, model-behavior metrics; no raw rows) to OpenAI `gpt-4o-mini` with structured output (summary / likely_cause / suggested_action) and a "use only these numbers" system prompt. Falls back to a rule-based template when there's no key, `LLM_OFFLINE_MODE=true`, or any OpenAI error, so it never breaks the dashboard. 9 tests with a fake client (never hits the real API). `simulate.py --explain` shows it.
 - **Blocker:** OpenAI returned `credit_balance_exhausted`: the key is valid but the account has no prepaid credits. Oba needs to add credits (platform.openai.com → Settings → Billing; $5 minimum). Until then, explanations come from the template.

@@ -98,7 +98,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 - [x] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/` (overall F1 0.961, 0.6% false alarms)
 - [x] `deploymate/llm/explain.py`: `explain_alert` with OpenAI structured outputs + template fallback (`generate_config` stays template-based in service.py)
 - [ ] `api/`: FastAPI endpoints (`/predict`, `/batches`, `/alerts`, `/assistant/*`)
-- [ ] Swap `service.py` internals from mock → real
+- [x] Swap `service.py` internals from mock → real (demo data stays as a fallback)
 
 **Aubrenesia**
 - [ ] Config Generator page: form → generated files shown in code blocks + download buttons
