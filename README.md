@@ -48,7 +48,7 @@ pip install -r requirements-dev.txt
 cp .env.example .env      # then add your API key
 ```
 
-**How everything works (every part, every decision): [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)**
+**How everything works (every part, every decision): [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)** · **Learning version with the ML basics: [docs/STUDY_GUIDE.md](docs/STUDY_GUIDE.md)**
 
 Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
 
