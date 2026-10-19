@@ -38,7 +38,7 @@ Open the VS Code terminal (**Terminal → New Terminal**, or `` Ctrl+` ``), then
 ```bash
 python3 -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 When it worked, your terminal prompt starts with `(venv)`. **Activate it every time you open a new terminal.**
 

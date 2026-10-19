@@ -25,7 +25,7 @@ As per course requirements, all three members must actively collaborate and comm
 Follow these steps to set up the environment and run the project locally.
 
 ### Prerequisites
-*   Python 3.9+
+*   Python 3.13 (what the pinned packages are tested on)
 *   `pip` or `conda`
 *   Git
 *   An OpenAI API key (optional; the app runs in offline mode without one)
@@ -41,7 +41,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
 
 # Install required dependencies
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 # Configure environment variables
 cp .env.example .env      # then add your API key
