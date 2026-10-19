@@ -93,6 +93,10 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-19 (late)
+- **`docs/STUDY_GUIDE.md`:** teaching version of the whole project (ML basics, models, metrics, why 87%, drift tests, simulator, evaluation, AI, architecture, presentation flow, practice Q&A).
+- **Improvement experiment** (training CV only): tuning Gradient Boosting 0.8728 → 0.8731 CV accuracy (no real gain = data ceiling). Threshold 0.5 → 0.4 (picked on train CV): test recall 0.652 → 0.728, F1 0.707 → 0.719, accuracy 0.873 → 0.866. Kept 0.5 (standard); documented as a business trade-off.
+
 ### 2026-10-19 (evening)
 - **Deployed to Streamlit Community Cloud:** https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app (branch `main`, `app/Home.py`, Python 3.13, `ANTHROPIC_API_KEY` in Secrets). First attempt showed navy: it was deployed from Marissa's branch (her theme); redeployed from `main` (Bree's teal theme).
 - Overview page missed PR #28 by minutes (Marissa merged first); went in as PR #30.

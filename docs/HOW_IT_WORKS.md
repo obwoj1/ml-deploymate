@@ -76,11 +76,7 @@ The dangerous part: **in real life you usually don't find out the correct answer
    └──────────────┘   └──────────────┘
 ```
 
-| Who built it | Pieces |
-|---|---|
-| Oba | 1–6, 8 (data, model, simulator, monitor, evaluation, AI explainer, service, API) |
-| Marissa + Bree | 7 (the dashboard), deployment, demo GIF |
-
+|
 ---
 
 ## 3. The dataset
