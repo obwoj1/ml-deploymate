@@ -4,8 +4,9 @@
     explain_alert(report)  # report = Monitor.check(...) output
     # -> {"summary", "likely_cause", "suggested_action", "source"}
 
-Uses OpenAI when OPENAI_API_KEY is set; otherwise (or if the call fails) it
-falls back to a template built from the same numbers, so the dashboard always
+Uses Claude when ANTHROPIC_API_KEY is set (deploymate/llm/claude.py), else OpenAI
+when OPENAI_API_KEY is set. Otherwise (or if the call fails) it falls back to a
+template built from the same numbers, so the dashboard always
 works: for teammates without a key, in CI, and during the live demo.
 
 The model only sees the alert's numbers (no raw rows of data) and is told to
@@ -124,41 +125,64 @@ def template_explanation(report: dict) -> dict:
     }
 
 
-def _client():
-    """An OpenAI client, or None when offline (no key, or LLM_OFFLINE_MODE=true)."""
+def _pick_provider():
+    """(provider, client) for the first configured provider, or None (→ template).
+
+    Order: Claude (ANTHROPIC_API_KEY), then OpenAI (OPENAI_API_KEY).
+    LLM_OFFLINE_MODE=true forces the template.
+    """
     if os.getenv("LLM_OFFLINE_MODE", "false").lower() == "true":
         return None
-    key = os.getenv("OPENAI_API_KEY")
-    if not key:
-        return None
-    from openai import OpenAI
-    return OpenAI(api_key=key, timeout=20, max_retries=1)
+    from deploymate.llm import claude
+    client = claude.make_client()
+    if client is not None:
+        return "claude", client
+    if os.getenv("OPENAI_API_KEY"):
+        from openai import OpenAI
+        return "openai", OpenAI(api_key=os.environ["OPENAI_API_KEY"], timeout=20, max_retries=1)
+    return None
 
 
-def explain_alert(report: dict, client=None) -> dict:
-    """Explain one monitor report. Never raises because of the LLM: falls back to the template."""
+def _ask_openai(client, user_content: str) -> Explanation:
+    completion = client.chat.completions.parse(
+        model=os.getenv("OPENAI_MODEL", DEFAULT_MODEL),
+        messages=[{"role": "system", "content": SYSTEM_PROMPT},
+                  {"role": "user", "content": user_content}],
+        response_format=Explanation,
+        temperature=0.2,
+    )
+    parsed = completion.choices[0].message.parsed
+    if parsed is None:  # model refused or returned nothing usable
+        raise ValueError("no parsed explanation")
+    return parsed
+
+
+def explain_alert(report: dict, client=None, provider: str = "openai") -> dict:
+    """Explain one monitor report. Never raises because of the LLM: falls back to the template.
+
+    Pass `client` (+ `provider`) to inject a client, as the tests do; otherwise the
+    provider is picked from the environment.
+    """
     if not report.get("alert"):
         return template_explanation(report)
-    client = client or _client()
     if client is None:
-        return template_explanation(report)
+        picked = _pick_provider()
+        if picked is None:
+            return template_explanation(report)
+        provider, client = picked
 
+    import anthropic
     import openai
+
+    from deploymate.llm import claude
+    user_content = "Alert:\n" + json.dumps(alert_context(report), indent=2)
     try:
-        completion = client.chat.completions.parse(
-            model=os.getenv("OPENAI_MODEL", DEFAULT_MODEL),
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": "Alert:\n" + json.dumps(alert_context(report), indent=2)},
-            ],
-            response_format=Explanation,
-            temperature=0.2,
-        )
-        parsed = completion.choices[0].message.parsed
-        if parsed is None:  # model refused or returned nothing usable
-            raise ValueError("no parsed explanation")
-        return {**parsed.model_dump(), "source": "openai"}
-    except (openai.OpenAIError, ValueError) as err:
+        if provider == "claude":
+            parsed = claude.explain(client, SYSTEM_PROMPT, user_content, Explanation)
+        else:
+            parsed = _ask_openai(client, user_content)
+        return {**parsed.model_dump(), "source": provider}
+    except (anthropic.AnthropicError, openai.OpenAIError, ValueError) as err:
         fallback = template_explanation(report)
         fallback["source"] = f"template (AI unavailable: {type(err).__name__})"
         return fallback
