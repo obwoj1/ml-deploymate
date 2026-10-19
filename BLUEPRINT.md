@@ -69,8 +69,8 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 - **Adaptive thresholds:** rolling mean ± k·std per metric, learned from the "healthy" period. This covers the concept doc's "dynamically adjusting thresholds."
 - **Evaluation (this is what makes it real ML):** we generate labeled scenarios: healthy, gradual covariate drift, sudden shift, label drift, and noise/corruption. We measure the detector's **precision, recall, F1, and detection delay** (batches until the alert fires).
 
-### 4c. LLM layer (provider: OpenAI, decided 2026-10-13)
-- **Provider: OpenAI, model `gpt-4o-mini`**, on Oba's account. This matches the concept doc ("OpenAI API"). The key lives only in `.env` (gitignored) and in the host's secrets for the live site.
+### 4c. LLM layer (provider: Claude, switched 2026-10-19; OpenAI still supported)
+- **Provider: Claude (`claude-opus-5-5`)**, on Oba's account (`deploymate/llm/claude.py`). The order is Claude if `ANTHROPIC_API_KEY` is set, else OpenAI (`gpt-4o-mini`) if `OPENAI_API_KEY` is set, else the template. Switched from OpenAI because that account had no API credits. Keys live only in `.env` (gitignored) and in the host's secrets for the live site. The concept doc said OpenAI; mention the switch in the README/presentation.
 - **Provider-agnostic:** all LLM calls still go through one small interface in `deploymate/llm/`, so switching providers later is a one-file change.
 - **Offline fallback:** with no key (teammates, CI) or `LLM_OFFLINE_MODE=true`, explanations come from templates, so the dashboard always works.
 - `explain_alert(alert, recent_metrics)` → what happened, likely cause, suggested action.

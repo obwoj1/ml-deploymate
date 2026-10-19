@@ -79,6 +79,7 @@ The LLM is the assistant layer on top.
 | 2026-10-12 | Pool categories <1% of the reference into "Other" for drift tests | Rare categories made healthy batches look drifted by chance (native_country false alarms) |
 | 2026-10-12 | Anomaly detector uses only label-free metrics | In production, true labels arrive late; the monitor must work without them |
 | 2026-10-12 | Isolation Forest alarm line = strangest of 200 healthy calibration batches (not `contamination`) | `contamination` guarantees ~2% false alarms on healthy data |
+| 2026-10-19 | AI provider switched to Claude (OpenAI kept as a second option) | OpenAI account had no API credits; Claude key with credits works |
 | 2026-10-16 | Alerts = drift tests only; anomaly detector shown as an info signal | Ablation: anomaly-triggered alerts added 0.6% false alarms for +0.1% recall |
 | 2026-10-13 | **LLM provider: OpenAI (`gpt-4o-mini`)**, key in Oba's local `.env` (verified working) | Oba has an OpenAI key; matches the concept doc. Interface stays provider-agnostic |
 
@@ -93,6 +94,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-19
+- **Switched AI explanations to Claude** (`deploymate/llm/claude.py`, `claude-opus-5-5`, structured output, effort low, refusal fallback). Provider order: Claude → OpenAI → template. First key was organization-level (400: needs `anthropic-workspace-id`); a workspace-scoped key works. Added optional `ANTHROPIC_WORKSPACE_ID` support. **Verified live:** real Claude explanation in ~8s. OpenAI key still has $0 credit (unused now).
 - **`docs/HOW_IT_WORKS.md`:** complete explainer of every part (data → model → drift → simulator → anomaly → evaluation → AI → service → API → dashboard → tests → deploy), every decision and why, limitations, likely questions with answers, glossary, file map. For the team walkthrough and presentation.
 - **Deploy-readiness checked:** cloned the repo fresh (no data, no model, no key), installed only `requirements.txt` on Python 3.13, cold-started: the app downloaded the data and trained the model itself, ran on real data, all 6 pages loaded with 0 errors. First load on a new server ~10–15s (download ~8s), then instant. `requirements.txt` is now pinned + runtime-only; tests/notebooks moved to `requirements-dev.txt`; CI on 3.13. Guide for Bree: `docs/DEPLOY.md` (incl. "open the site 10 min before presenting; free apps sleep").
 - **FastAPI built:** `api/main.py`, thin wrappers over `service.py`: `/health`, `/predict`, `/monitor/check` (send any batch, get drift report + alert), scenario replay, `/alerts`, `/alerts/{id}/explain`, `/model/report`, `/config`. Input validated with pydantic (e.g. age 17–90). 97 tests. Run: `uvicorn api.main:app --reload` → `/docs`.
