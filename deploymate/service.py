@@ -60,6 +60,7 @@ class _Backend:
 
         healthy = [b.X for b in simulate("healthy", self.X_test, self.y_test,
                                          n_batches=200, seed=CALIBRATION_SEED)]
+        self.model = model
         self.monitor = Monitor.from_data(model, X_train.sample(5000, random_state=0), healthy)
         self.report = json.loads(REPORT_PATH.read_text())
         self.alerts: list[dict] = []          # newest last
@@ -207,3 +208,39 @@ def get_model_report() -> dict:
     if b is None:
         return mock_service.get_model_report()
     return b.report
+
+
+class BackendUnavailable(RuntimeError):
+    """predict()/check_batch() need the real model; demo data can't fake them."""
+
+
+def _rows_to_frame(rows: list[dict]):
+    import pandas as pd
+
+    from deploymate.data.load import FEATURES
+    missing = [f for f in FEATURES if any(f not in r for r in rows)]
+    if missing:
+        raise ValueError(f"Each row needs these fields: {FEATURES}. Missing: {sorted(set(missing))}")
+    return pd.DataFrame(rows)[FEATURES]
+
+
+def predict(rows: list[dict]) -> list[dict]:
+    """Model predictions for raw rows (same columns as load_dataset())."""
+    b = _get_backend()
+    if b is None:
+        raise BackendUnavailable(_backend_error or "running on demo data (DEPLOYMATE_MOCK=true)")
+    X = _rows_to_frame(rows)
+    probabilities = b.model.predict_proba(X)[:, 1]
+    return [{"prediction": ">50K" if p >= 0.5 else "<=50K", "probability_over_50K": round(float(p), 4)}
+            for p in probabilities]
+
+
+def check_batch(rows: list[dict], label: str = "api") -> dict:
+    """Run the monitor on a batch someone sends in. Alerts are recorded like any other."""
+    b = _get_backend()
+    if b is None:
+        raise BackendUnavailable(_backend_error or "running on demo data (DEPLOYMATE_MOCK=true)")
+    report = b.monitor.check(_rows_to_frame(rows), batch_id=b.batches_processed + 1)
+    report["scenario"] = label
+    b.record(label, report)
+    return report
