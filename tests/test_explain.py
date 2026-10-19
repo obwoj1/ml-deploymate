@@ -23,6 +23,19 @@ BLANK = {"feature": "workclass", "kind": "categorical", "statistic": 0.4, "p_val
 QUIET = {"feature": "age", "kind": "numeric", "statistic": 0.02, "p_value": 0.9, "drifted": False}
 
 
+class FakeClaude:
+    """Stands in for anthropic.Anthropic: client.beta.messages.parse(...)."""
+    def __init__(self, answer=None, stop_reason="end_turn", error=None):
+        self.calls, self.answer, self.stop_reason, self.error = [], answer, stop_reason, error
+        self.beta = SimpleNamespace(messages=SimpleNamespace(parse=self._parse))
+
+    def _parse(self, **kwargs):
+        self.calls.append(kwargs)
+        if self.error:
+            raise self.error
+        return SimpleNamespace(parsed_output=self.answer, stop_reason=self.stop_reason)
+
+
 class FakeClient:
     """Stands in for openai.OpenAI: returns a canned answer or raises an error."""
     def __init__(self, answer=None, error=None):
@@ -101,3 +114,41 @@ def test_no_alert_never_calls_the_api():
 def test_every_feature_has_a_plain_meaning():
     from deploymate.data.load import FEATURES
     assert set(FEATURES) <= set(explain.FEATURE_MEANINGS)
+
+
+ANSWER = Explanation(summary="Hours jumped to 55.", likely_cause="Maybe a new source.",
+                     suggested_action="Check the pipeline.")
+
+
+def test_claude_answer_is_used_with_structured_output():
+    client = FakeClaude(answer=ANSWER)
+    out = explain_alert(make_report([HOURS]), client=client, provider="claude")
+    assert out == {**ANSWER.model_dump(), "source": "claude"}
+    sent = client.calls[0]
+    assert sent["output_format"] is Explanation
+    assert sent["model"] == "claude-opus-5-5"
+    assert "55.1" in sent["messages"][0]["content"] and "ONLY the numbers" in sent["system"]
+
+
+def test_claude_refusal_falls_back_to_template():
+    out = explain_alert(make_report([HOURS]), client=FakeClaude(answer=None, stop_reason="refusal"),
+                        provider="claude")
+    assert out["source"].startswith("template") and "55.1" in out["summary"]
+
+
+def test_claude_api_error_falls_back_to_template():
+    import anthropic
+    error = anthropic.APIConnectionError(request=SimpleNamespace(method="POST", url="x"))
+    out = explain_alert(make_report([HOURS]), client=FakeClaude(error=error), provider="claude")
+    assert out["source"] == "template (AI unavailable: APIConnectionError)"
+
+
+def test_provider_order_prefers_claude(monkeypatch):
+    monkeypatch.setenv("LLM_OFFLINE_MODE", "false")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    assert explain._pick_provider()[0] == "claude"
+    monkeypatch.delenv("ANTHROPIC_API_KEY")
+    assert explain._pick_provider()[0] == "openai"
+    monkeypatch.delenv("OPENAI_API_KEY")
+    assert explain._pick_provider() is None
