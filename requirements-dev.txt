@@ -1,0 +1,12 @@
+# Everything in requirements.txt, plus tools for development.
+#   pip install -r requirements-dev.txt
+-r requirements.txt
+
+# Testing
+pytest==9.1.1
+httpx==0.28.1
+
+# Notebooks
+ipykernel==7.4.0
+nbformat==5.11.1
+nbclient==0.11.0
