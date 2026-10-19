@@ -6,7 +6,7 @@
 As per course requirements, all three members must actively collaborate and commit to this repository.
 *   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - 
 *   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** -
-*   **Aubrenesia Tomilson ([aubrenesia](https://github.com/aubrenesia))** -
+*   **Aubrenesia Tomlinson ([aubrenesia](https://github.com/aubrenesia))** -
 
 ---
 

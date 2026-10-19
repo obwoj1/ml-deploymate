@@ -40,7 +40,7 @@ The LLM is the assistant layer on top.
 - [x] Marissa's first commit: created `scripts/download_data.py` (empty placeholder) via PR #1, merged 2026-10-08
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
-- [ ] Aubrenesia pushes her first commit
+- [x] Aubrenesia pushes her first commit
 - [x] LLM provider decided: OpenAI `gpt-4o-mini` (2026-10-13)
 
 ## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
@@ -53,7 +53,7 @@ The LLM is the assistant layer on top.
 - [x] Drift simulator (`deploymate/simulate/`), 52 tests passing
 
 **Aubrenesia (frontend)**
-- [ ] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
+- [x] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
 
 **Marissa (frontend)**
 - [ ] Wireframes for Live Monitor + Model Performance; Streamlit/Plotly basics; review Oba's PRs
@@ -84,7 +84,7 @@ The LLM is the assistant layer on top.
 
 ## ❓ Open questions
 
-1. ~~Third team member~~ Aubrenesia Tomilson (`aubrenesia`).
+1. ~~Third team member~~ Aubrenesia Tomlinson (`aubrenesia`).
 2. ~~LLM provider~~ OpenAI, key set up in Oba's `.env`.
 3. **Deadlines + rubric:** not posted yet.
 
@@ -96,7 +96,11 @@ The LLM is the assistant layer on top.
 - **Real `service.py`:** the dashboard now runs on the real model, monitor and AI explanations. Same function names and shapes as before, so pages built on the mock work unchanged. First call ~3s (load data + model, calibrate monitor), then cached. Alerts from `run_scenario()` are recorded and show up in `list_alerts()` / `get_overview()`; a fresh server seeds a few demo alerts so the Alerts page isn't empty. If the dataset or model is missing it downloads/trains automatically (for the live site). Falls back to demo data (`mock_service.py`) if startup fails or `DEPLOYMATE_MOCK=true`; `get_overview()["mock"]` says which.
 - Contract tests now run in both modes (real skipped in CI without the dataset). Caught a real mismatch: mock called the blank-fields metric `missing_rate`, real calls it `unknown_rate`. Mock fixed to match.
 - Dataset download moved to `deploymate/data/download.py` (script is now a thin wrapper).
-- Teammates: Aubrenesia opened PR #22 (app shell, theme, stub pages, wireframes); Marissa built the same app shell + a working Overview page on branch `frontend-app-shell` (pushed, no PR). Overlap to sort out at today's team meeting. Resolved #22's PROGRESS.md conflict (kept both entries). Her name is **Tomlinson** (docs had "Tomilson"; her PR fixes it).
+- Teammates: Aubrenesia opened PR #22 (app shell, theme, stub pages, wireframes); Marissa built the same app shell + a working Overview page on branch `frontend-app-shell` (pushed, no PR). Overlap to sort out at today's team meeting. Resolved #22's PROGRESS.md conflict (kept both entries); Oba merged #22. Her name is **Tomlinson** (docs had "Tomilson"; her PR fixes it).
+
+### 2026-10-18
+- **Streamlit App and Navigation:** Entry point, sidebar naviagtion, page layout, theme, and empty stub pages have been committed. 
+- **Sketches of Page Wireframes:** Overview, Alerts, and Config Generator Wireframes sketches and uploaded in assets directory.
 
 ### 2026-10-17
 - **AI explanations built:** `deploymate/llm/explain.py`. `explain_alert(report)` sends only the alert's facts (drifted features in plain words, before/after numbers, severity, model-behavior metrics; no raw rows) to OpenAI `gpt-4o-mini` with structured output (summary / likely_cause / suggested_action) and a "use only these numbers" system prompt. Falls back to a rule-based template when there's no key, `LLM_OFFLINE_MODE=true`, or any OpenAI error, so it never breaks the dashboard. 9 tests with a fake client (never hits the real API). `simulate.py --explain` shows it.
@@ -141,7 +145,7 @@ The LLM is the assistant layer on top.
 
 ### 2026-10-06: Third member
 - Third teammate's GitHub is `aubrenesia`; invited with write access. Proposed role: API + DB + LLM layer + dashboard + deployment.
-- 2026-10-07: name confirmed as Aubrenesia Tomilson; added to README.
+- 2026-10-07: name confirmed as Aubrenesia Tomlinson; added to README.
 - **Next:** run a team kickoff where everyone confirms their area and clones the repo.
 
 ### 2026-10-05: Kickoff / scaffolding
