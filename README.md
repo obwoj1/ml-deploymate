@@ -1,6 +1,6 @@
 # Project Title: ML DeployMate
 
->>> ML DeployMate monitors deployed machine-learning models and catches problems before users notice them. Statistical drift tests and an Isolation Forest anomaly detector flag degrading models in real time, and an OpenAI-powered assistant explains each alert in plain English and generates deployment configs. *(🚧 In progress. See [BLUEPRINT.md](BLUEPRINT.md) for the full plan.)*
+>>> ML DeployMate monitors deployed machine-learning models and catches problems before users notice them. Statistical drift tests and an Isolation Forest anomaly detector flag degrading models in real time, and a Claude-powered assistant explains each alert in plain English. It also generates deployment configs. *(🚧 In progress. See [BLUEPRINT.md](BLUEPRINT.md) for the full plan.)*
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
@@ -28,7 +28,7 @@ Follow these steps to set up the environment and run the project locally.
 *   Python 3.13 (what the pinned packages are tested on)
 *   `pip` or `conda`
 *   Git
-*   An OpenAI API key (optional; the app runs in offline mode without one)
+*   An Anthropic (Claude) API key (optional; without one, explanations use a built-in template)
 
 ### Local Installation
 ```bash
@@ -71,7 +71,7 @@ The first start downloads the dataset and trains the model automatically (~15s).
 
 ## 🧠 Model Architecture & Training
 *   **Algorithm:** Monitored model: Gradient Boosting (`HistGradientBoostingClassifier`), chosen over Random Forest and a Logistic Regression baseline. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
-*   **Frameworks Used:** scikit-learn, FastAPI, SQLAlchemy, OpenAI API, Streamlit
+*   **Frameworks Used:** scikit-learn, FastAPI, Anthropic Claude API, Streamlit, Plotly
 *   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Three classifiers compared with stratified 5-fold cross-validation on the training split; the winner by ROC-AUC (robust to the 76/24 class imbalance) is refit on all training data and scored once on the held-out test split. Run `python scripts/train.py` (~15s) to reproduce; it saves `models/model.joblib` + `models/report.json`.
 
 ---

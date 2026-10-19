@@ -13,7 +13,7 @@ ML DeployMate watches a deployed machine-learning model and tells the engineer w
 
 1. **A real model being monitored.** We train a classifier on a public dataset and serve it through FastAPI.
 2. **An ML monitoring engine.** Statistical drift tests plus an Isolation Forest anomaly detector run on every batch of incoming predictions and metrics.
-3. **An LLM assistant (OpenAI API).** It turns raw alerts and logs into explanations and suggested fixes, and it generates deployment configs (Dockerfile, CI workflow, env template) from a short form.
+3. **An LLM assistant (Claude API; switched from OpenAI on 2026-10-19).** It turns raw alerts and logs into explanations and suggested fixes, and it generates deployment configs (Dockerfile, CI workflow, env template) from a short form.
 
 A Streamlit dashboard ties it together. You can pick a deployment, watch live metric charts, inject a drift scenario, see the alert fire, and read the LLM's explanation.
 
@@ -23,7 +23,7 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 
 - **The ML is the core:** the monitored classifier and the drift/anomaly detector. Both are trained, evaluated, and reported with real numbers.
 - **The LLM is the assistant layer on top.** It's what makes the project feel like "DeployMate," but the grade-bearing ML doesn't depend on it.
-- **Offline mode:** if there's no API key or OpenAI is down, the LLM layer falls back to template-based text. **The live demo must never break during the presentation.**
+- **Offline mode:** if there's no API key or the AI service is down, the LLM layer falls back to template-based text. **The live demo must never break during the presentation.**
 
 ### Deliberate deviations from the concept doc
 
@@ -48,7 +48,7 @@ The concept doc describes an **LLM tool**. The course grades an **ML project**: 
 │ model/      train + evaluate the monitored classifier              │   │ /metrics/ingest    │
 │ simulate/   replay batches, inject drift scenarios (labeled)       │   │ /alerts            │
 │ monitor/    drift tests (PSI, KS, chi²) + IsolationForest          │   │ /assistant/explain │
-│ llm/        OpenAI client, prompts, offline fallback               │   │ /assistant/config  │
+│ llm/        Claude (or OpenAI) client, prompts, template fallback   │   │ /assistant/config  │
 │ db/         SQLAlchemy models: deployments, batches, metrics,      │   └────────────────────┘
 │             alerts (SQLite locally)                                │
 └────────────────────────────────────────────────────────────────────┘
@@ -156,7 +156,7 @@ Per-person checklists: [docs/TASKS.md](docs/TASKS.md).
 1. ~~Third member~~ Aubrenesia Tomlinson (`aubrenesia`), invited 2026-10-06.
 2. ~~Dr. Dacon's GitHub username~~ `daconjam` (invited)
 3. ~~Marissa's GitHub username?~~ `sadiebird5` (verified: Marissa Savage)
-4. ~~LLM provider~~ OpenAI `gpt-4o-mini`, key in Oba's `.env` (see §4c).
+4. ~~LLM provider~~ Claude `claude-opus-5-5`, key in Oba's `.env` (see §4c).
 5. Deadlines and rubric: TBD from Dr. Dacon.
 
 ## 11. Status log

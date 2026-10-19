@@ -65,7 +65,7 @@ The dangerous part: **in real life you usually don't find out the correct answer
  ┌───────────────────┐   ┌──────────────────┐   ┌───────────────────────┐
  │ 6. SERVICE        │ ← │ 5. AI EXPLAINER  │ ← │ 4. MONITOR            │
  │ one module that   │   │ alert → plain    │   │ drift tests → ALERT   │
- │ the dashboard and │   │ English (OpenAI  │   │ anomaly detector →    │
+ │ the dashboard and │   │ English (Claude  │   │ anomaly detector →    │
  │ API both use      │   │ or template)     │   │ info signal           │
  └────────┬──────────┘   └──────────────────┘   └───────────────────────┘
           ↓
@@ -383,11 +383,19 @@ An alert like `occupation drifted, Cramér's V = 0.31` means nothing to most peo
 - **Likely cause**
 - **Suggested action**
 
+### A real example (Claude, `sudden_shift` scenario)
+> **What happened:** Batch 20 triggered a high-severity alert because hours worked per week shifted sharply, with an average of 55.09 hours versus 40.31 in the training data (PSI 2.718, a very large shift). The model's outputs show no unusual behavior flags.
+>
+> **Likely cause:** This could be an upstream data issue, such as a changed unit, a scaling or default-value bug, or a field mapping error. It could also be a real change in who is in this batch.
+>
+> **Suggested action:** Inspect the raw hours-per-week values at the upstream source and compare them against recent pipeline or schema changes. If the shift is real and persists, collect fresh labeled data and retrain.
+
 ### How it works
 1. **Only the alert's facts are sent**: which columns changed (in plain words, like "hours worked per week"), before/after numbers, severity, model-behavior numbers. **Never the raw data rows.** (Why: privacy, cost, and focus.)
 2. **The instructions (system prompt) say "use ONLY the numbers given"**, and say causes must be worded as possibilities. (Why: so the AI explains what was *measured* instead of making things up.)
 3. **Structured output:** the AI is forced to answer in an exact format (`summary`, `likely_cause`, `suggested_action`), so the dashboard can always display it.
-4. **Model:** OpenAI `gpt-4o-mini`, low temperature (0.2) for consistent answers. Cost: about 1/100 of a cent per explanation.
+4. **Model:** Anthropic **Claude** (`claude-opus-5-5`) at low effort, since it's a short writing task. Cost: well under a cent per explanation. If Claude's safety filter ever declines, a server-side fallback retries on a backup model in the same call.
+5. **Provider order:** Claude if `ANTHROPIC_API_KEY` is set, else OpenAI (`gpt-4o-mini`) if `OPENAI_API_KEY` is set, else the template. **We switched from OpenAI to Claude** because the OpenAI account had no API credits; the code supports both (`deploymate/llm/claude.py`).
 
 ### The fallback: why it never breaks
 If there's **no API key, no credits, the internet is down, or the AI refuses**, it automatically uses a **template explanation** built from the same numbers, e.g.:
@@ -395,7 +403,7 @@ If there's **no API key, no credits, the internet is down, or the AI refuses**, 
 
 The dashboard always works: for teammates without a key, in automated tests, and during the live demo.
 
-**About the cost:** API usage is billed separately from ChatGPT/Claude subscriptions (both APIs are prepaid). Without credits, the template is used.
+**About the cost:** API usage is billed separately from ChatGPT/Claude subscriptions (both APIs are prepaid). Without a key or credits, the template is used.
 
 ---
 
@@ -530,6 +538,9 @@ It's measured on 1,320 healthy batches across independent runs. We found and fix
 
 **"Did you look at the test set while choosing the model?"**
 No. Model selection used cross-validation on training data only. The test set was used once, at the end.
+
+**"Why Claude and not OpenAI?"**
+The concept doc said OpenAI, but the code is provider-agnostic: Claude is used when its key is set, OpenAI otherwise. We switched because our OpenAI account had no API credits. The explanations are grounded in the same measured numbers either way.
 
 **"Can the AI make things up?"**
 It only receives the measured numbers and is instructed to use only those. If it fails or isn't available, a template built from the same numbers is used.
