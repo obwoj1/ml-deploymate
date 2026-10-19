@@ -1,10 +1,9 @@
-"""The ONE module the dashboard (app/) is allowed to import.
+"""Demo data with the same shape as deploymate.service.
 
-Frontend team: call these functions and nothing else from `deploymate`.
-Right now they return realistic MOCK data so you can build every page today.
-Later the backend swaps the internals for the real model and monitor, and the
-function names and return shapes stay exactly the same (tests/test_service.py
-enforces that).
+The dashboard doesn't import this directly: deploymate.service falls back to
+it when the real backend can't start, or when DEPLOYMATE_MOCK=true. Function
+names and return shapes match the real service (tests/test_service.py checks
+both).
 
 All return values are plain dicts/lists, so they're easy to drop into
 st.metric, st.dataframe, and Plotly.
@@ -74,7 +73,7 @@ def run_scenario(name: str, n_batches: int = 30, seed: int = 0) -> Iterator[dict
 
     Each report:
         batch_id, scenario,
-        metrics: {accuracy, f1, positive_rate, mean_confidence, missing_rate},
+        metrics: {accuracy, f1, positive_rate, mean_confidence, low_confidence_share, unknown_rate},
         drift:   [{feature, kind, statistic, p_value, drifted}, ...],
         alert:   bool, severity: "none" | "medium" | "high"
     """
@@ -116,7 +115,8 @@ def run_scenario(name: str, n_batches: int = 30, seed: int = 0) -> Iterator[dict
             "f1": round(float(accuracy - 0.16 + rng.normal(0, 0.01)), 4),
             "positive_rate": round(float(0.24 + 0.06 * strength + rng.normal(0, 0.01)), 4),
             "mean_confidence": round(float(0.84 - 0.08 * strength + rng.normal(0, 0.005)), 4),
-            "missing_rate": round(float(missing_rate), 4),
+            "low_confidence_share": round(float(0.12 + 0.1 * strength + rng.normal(0, 0.01)), 4),
+            "unknown_rate": round(float(missing_rate), 4),
         }
 
         n_drifted = sum(d["drifted"] for d in drift)
