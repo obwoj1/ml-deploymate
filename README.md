@@ -4,9 +4,9 @@
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Data pipeline, model training and evaluation, drift monitoring, backend services
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Dashboard pages, deployment, presentation
-*   **Aubrenesia Tomlinson ([aubrenesia](https://github.com/aubrenesia))** - Dashboard application shell, theme and navigation, wireframes
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Data pipeline, model training, drift monitoring, backend services, UI
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Dashboard pages, deployment, model evaluation,  presentation
+*   **Aubrenesia Tomlinson ([aubrenesia](https://github.com/aubrenesia))** - Dashboard application shell, drift monitoring, theme and navigation, wireframes
 
 ---
 
