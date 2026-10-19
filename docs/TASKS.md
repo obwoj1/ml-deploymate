@@ -82,11 +82,11 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 
 **Aubrenesia: Overview + Alerts pages** (using the mock service)
 - [ ] Overview: status cards (`st.metric`), recent-alerts table
-- [ ] Alerts: filterable alert list, detail view, "Explain with AI" button → explanation panel
+- [x] Alerts: *(MVP by Oba, 2026-10-19; add-ons in the issues)* filterable alert list, detail view, "Explain with AI" button → explanation panel
 
 **Marissa: Live Monitor + Model Performance pages** (using the mock service)
-- [ ] Live Monitor: scenario picker → "Start" streams batches → Plotly line charts update live (accuracy, PSI per feature) → red banner when an alert fires
-- [ ] Model Performance: metric cards, confusion matrix heatmap, ROC curve, feature importance bar chart
+- [x] Live Monitor: *(MVP by Oba, 2026-10-19; add-ons in the issues)* scenario picker → "Start" streams batches → Plotly line charts update live (accuracy, PSI per feature) → red banner when an alert fires
+- [x] Model Performance: *(MVP by Oba, 2026-10-19; add-ons in the issues)* metric cards, confusion matrix heatmap, ROC curve, feature importance bar chart
 
 **Sprint 2 done when:** every page works end to end on mock data.
 
@@ -101,7 +101,7 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 - [x] Swap `service.py` internals from mock → real (demo data stays as a fallback)
 
 **Aubrenesia**
-- [ ] Config Generator page: form → generated files shown in code blocks + download buttons
+- [x] Config Generator page: *(MVP by Oba, 2026-10-19; add-ons in the issues)* form → generated files shown in code blocks + download buttons
 - [ ] Test her pages against the real service; fix anything that breaks
 - [ ] `tests/app/`: Streamlit `AppTest` smoke tests (each page loads without errors)
 
