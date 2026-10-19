@@ -40,7 +40,7 @@ The LLM is the assistant layer on top.
 - [x] Marissa's first commit: created `scripts/download_data.py` (empty placeholder) via PR #1, merged 2026-10-08
 - [ ] Dr. Dacon accepts the repo invite (still pending as of 2026-10-07)
 - [x] Aubrenesia accepted the repo invite (confirmed 2026-10-07)
-- [ ] Aubrenesia pushes her first commit
+- [x] Aubrenesia pushes her first commit
 - [x] LLM provider decided: OpenAI `gpt-4o-mini` (2026-10-13)
 
 ## ⏭️ Up next: Sprint 1 (full list in [docs/TASKS.md](docs/TASKS.md))
@@ -53,7 +53,7 @@ The LLM is the assistant layer on top.
 - [x] Drift simulator (`deploymate/simulate/`), 52 tests passing
 
 **Aubrenesia (frontend)**
-- [ ] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
+- [x] Streamlit app shell (`app/Home.py`), theme, 5 stub pages, wireframes
 
 **Marissa (frontend)**
 - [ ] Wireframes for Live Monitor + Model Performance; Streamlit/Plotly basics; review Oba's PRs
@@ -79,17 +79,32 @@ The LLM is the assistant layer on top.
 | 2026-10-12 | Pool categories <1% of the reference into "Other" for drift tests | Rare categories made healthy batches look drifted by chance (native_country false alarms) |
 | 2026-10-12 | Anomaly detector uses only label-free metrics | In production, true labels arrive late; the monitor must work without them |
 | 2026-10-12 | Isolation Forest alarm line = strangest of 200 healthy calibration batches (not `contamination`) | `contamination` guarantees ~2% false alarms on healthy data |
+| 2026-10-16 | Alerts = drift tests only; anomaly detector shown as an info signal | Ablation: anomaly-triggered alerts added 0.6% false alarms for +0.1% recall |
 | 2026-10-13 | **LLM provider: OpenAI (`gpt-4o-mini`)**, key in Oba's local `.env` (verified working) | Oba has an OpenAI key; matches the concept doc. Interface stays provider-agnostic |
 
 ## ❓ Open questions
 
-1. ~~Third team member~~ Aubrenesia Tomilson (`aubrenesia`).
+1. ~~Third team member~~ Aubrenesia Tomlinson (`aubrenesia`).
 2. ~~LLM provider~~ OpenAI, key set up in Oba's `.env`.
 3. **Deadlines + rubric:** not posted yet.
 
 ---
 
 ## 📓 Session log
+
+### 2026-10-18
+- **Streamlit App and Navigation:** Entry point, sidebar naviagtion, page layout, theme, and empty stub pages have been committed. 
+- **Sketches of Page Wireframes:** Overview, Alerts, and Config Generator Wireframes sketches and uploaded in assets directory.
+
+### 2026-10-17
+- **AI explanations built:** `deploymate/llm/explain.py`. `explain_alert(report)` sends only the alert's facts (drifted features in plain words, before/after numbers, severity, model-behavior metrics; no raw rows) to OpenAI `gpt-4o-mini` with structured output (summary / likely_cause / suggested_action) and a "use only these numbers" system prompt. Falls back to a rule-based template when there's no key, `LLM_OFFLINE_MODE=true`, or any OpenAI error, so it never breaks the dashboard. 9 tests with a fake client (never hits the real API). `simulate.py --explain` shows it.
+- **Blocker:** OpenAI returned `credit_balance_exhausted`: the key is valid but the account has no prepaid credits. Oba needs to add credits (platform.openai.com → Settings → Billing; $5 minimum). Until then, explanations come from the template.
+- Also: Prime Video was stuck at ~550% CPU for 4 days (the fan noise); unrelated to the project.
+
+### 2026-10-15
+- **Monitor evaluation done** (`deploymate/monitor/evaluate.py`, `scripts/evaluate_monitor.py`): 10 runs per scenario, scored at batch level. Overall combined: precision 0.992, recall 0.932, F1 0.961, false-alarm rate 0.6%, mean detection delay 1.5 batches, 50/50 broken runs detected. Results in README + `assets/monitor_results.json`.
+- **Evaluation bug found + fixed:** a shared seed made every scenario replay identical healthy batches, so one false alarm was counted up to 6 times (showed 1.4%). Each scenario now gets its own seed; calibration seed moved to 100000 so it never overlaps.
+- **Honest finding (ablation):** drift tests alone score F1 0.965 with 0% false alarms; the anomaly detector alone has recall 0.287 and adds 0.6% false alarms for +0.1% recall. On THESE scenarios it's mostly redundant (except it independently catches 100% of missing_values). It's a label-free safety net for problems that don't show up as column drift. **Decided 2026-10-16 (option b):** alerts come from drift tests only; anomaly detector is an info signal. Final: precision 1.000, recall 0.931, F1 0.965, 0% false alarms, 50/50 runs detected. Drifted features now carry a `shift` summary (means for numeric, biggest category change) for the AI explanations.
 
 ### 2026-10-13
 - OpenAI key added to Oba's `.env` and verified; provider = OpenAI `gpt-4o-mini`.
@@ -124,7 +139,7 @@ The LLM is the assistant layer on top.
 
 ### 2026-10-06: Third member
 - Third teammate's GitHub is `aubrenesia`; invited with write access. Proposed role: API + DB + LLM layer + dashboard + deployment.
-- 2026-10-07: name confirmed as Aubrenesia Tomilson; added to README.
+- 2026-10-07: name confirmed as Aubrenesia Tomlinson; added to README.
 - **Next:** run a team kickoff where everyone confirms their area and clones the repo.
 
 ### 2026-10-05: Kickoff / scaffolding

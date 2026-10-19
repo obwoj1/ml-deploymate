@@ -1,5 +1,9 @@
 """The full monitor: one call per incoming batch.
 
+Alerts come from the DRIFT TESTS only. The anomaly detector is reported as an
+info signal: evaluation showed that letting it trigger alerts added ~0.6%
+false alarms for +0.1% recall (see README results + PROGRESS.md, 2026-10-15).
+
     monitor = Monitor.from_data(model, X_reference, healthy_batches)
     report = monitor.check(batch_X, batch_y)   # y optional
 
@@ -22,6 +26,20 @@ SEVERE_PSI = 0.5
 SEVERE_CRAMERS_V = 0.25
 
 
+def describe_shift(reference: pd.Series, current: pd.Series, kind: str) -> dict:
+    """Human-readable summary of HOW a drifted feature changed (used in explanations)."""
+    if kind == "numeric":
+        return {"reference_mean": round(float(reference.mean()), 2),
+                "current_mean": round(float(current.mean()), 2)}
+    ref_share = reference.value_counts(normalize=True)
+    cur_share = current.value_counts(normalize=True)
+    change = cur_share.subtract(ref_share, fill_value=0)
+    top = change.abs().idxmax()
+    return {"category": str(top),
+            "reference_share": round(float(ref_share.get(top, 0.0)), 3),
+            "current_share": round(float(cur_share.get(top, 0.0)), 3)}
+
+
 class Monitor:
     def __init__(self, model, reference: pd.DataFrame, detector: AnomalyDetector):
         self.model = model
@@ -40,7 +58,9 @@ class Monitor:
         anomaly = self.detector.check(metrics)
 
         drifted = [d for d in drift if d["drifted"]]
-        alert = bool(drifted) or anomaly["anomalous"]
+        for d in drifted:
+            d["shift"] = describe_shift(self.reference[d["feature"]], X[d["feature"]], d["kind"])
+        alert = bool(drifted)
         severe = any(
             d["statistic"] >= (SEVERE_PSI if d["kind"] == "numeric" else SEVERE_CRAMERS_V)
             for d in drifted)
@@ -56,7 +76,7 @@ class Monitor:
             "metrics": metrics,
             "drift": drift,
             "drifted_features": [d["feature"] for d in drifted],
-            "anomaly": anomaly,
+            "anomaly": anomaly,  # info signal: shown on the dashboard, doesn't trigger alerts
             "alert": alert,
             "severity": severity,
         }

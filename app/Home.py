@@ -1,13 +1,12 @@
-
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # lets the app find the `deploymate` code
- 
+
 import streamlit as st
 from deploymate import service  # noqa: F401  (the pages use this; Home will show status later)
- 
+
 st.set_page_config(page_title="ML DeployMate", layout="wide")
- 
+
 # --- Hero banner (matches the wireframe) ---
 st.markdown(
     """
@@ -25,11 +24,20 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
- 
+
+overview = service.get_overview()
+if overview["mock"]:
+    st.info("Showing demo data. The real backend isn't connected yet.")
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Deployment", overview["deployment"])
+col2.metric("Status", overview["status"].title())
+col3.metric("Active alerts", overview["active_alerts"])
+
 # --- How to use: one card per page ---
 st.subheader("How to use this dashboard")
 st.write("Use the sidebar, or the cards below, to move between pages.")
- 
+
 PAGES = [
     ("01", "Overview", "Model health at a glance", "pages/1_Overview.py"),
     ("02", "Live Monitor", "Watch batches and drift live", "pages/2_Live_Monitor.py"),
@@ -43,5 +51,5 @@ for col, (num, name, blurb, path) in zip(st.columns(len(PAGES)), PAGES):
         st.markdown(f"**{name}**")
         st.write(blurb)
         st.page_link(path, label="Open →")
- 
+
 st.caption("Team SavageAI")

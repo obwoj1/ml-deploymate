@@ -59,10 +59,10 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 - [x] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios (+ `scripts/simulate.py` to watch them)
 
 **Aubrenesia: App shell**
-- [ ] `app/Home.py`: Streamlit entry point, sidebar navigation, page layout
-- [ ] `.streamlit/config.toml`: theme (colors, font)
-- [ ] Empty stub pages for all 5 pages so the navigation works
-- [ ] Sketch wireframes for her pages (paper or Figma, screenshots in `assets/wireframes/`)
+- [x] `app/Home.py`: Streamlit entry point, sidebar navigation, page layout
+- [x] `.streamlit/config.toml`: theme (colors, font)
+- [x] Empty stub pages for all 5 pages so the navigation works
+- [x] Sketch wireframes for her pages (paper or Figma, screenshots in `assets/wireframes/`)
 
 **Marissa: Page designs**
 - [ ] Sketch wireframes for Live Monitor + Model Performance (`assets/wireframes/`)
@@ -95,8 +95,8 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 ## Sprint 3: Real backend + LLM, swap mock → real
 
 **Oba**
-- [ ] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/`
-- [ ] `deploymate/llm/`: `explain_alert`, `generate_config`, with offline fallback
+- [x] `scripts/evaluate_monitor.py`: detector precision / recall / F1 / detection delay → README + `assets/` (overall F1 0.961, 0.6% false alarms)
+- [x] `deploymate/llm/explain.py`: `explain_alert` with OpenAI structured outputs + template fallback (`generate_config` stays template-based in service.py)
 - [ ] `api/`: FastAPI endpoints (`/predict`, `/batches`, `/alerts`, `/assistant/*`)
 - [ ] Swap `service.py` internals from mock → real
 

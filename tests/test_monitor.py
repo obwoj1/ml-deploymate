@@ -69,3 +69,16 @@ def test_broken_batches_alert_with_severity(setup):
     assert report["alert"] and report["severity"] in {"medium", "high"}
     assert report["batch_id"] == 20
     assert {"metrics", "drift", "drifted_features", "anomaly", "alert", "severity"} <= set(report)
+    shifted = next(d for d in report["drift"] if d["feature"] == "workclass")
+    assert shifted["shift"]["category"] == "Unknown"
+    assert shifted["shift"]["current_share"] > shifted["shift"]["reference_share"]
+
+
+def test_anomaly_alone_does_not_trigger_alert(setup, monkeypatch):
+    _, monitor, X, _ = setup
+    real_check = monitor.detector.check
+    monkeypatch.setattr(monitor.detector, "check", lambda row: dict(real_check(row), anomalous=True))
+    report = monitor.check(X[:200])  # healthy batch: no drift, but forced anomaly
+    assert report["anomaly"]["anomalous"]
+    assert not report["drifted_features"]
+    assert report["alert"] is False and report["severity"] == "none"
