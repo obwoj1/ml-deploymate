@@ -7,7 +7,7 @@
 Uses Claude when ANTHROPIC_API_KEY is set (deploymate/llm/claude.py), else OpenAI
 when OPENAI_API_KEY is set. Otherwise (or if the call fails) it falls back to a
 template built from the same numbers, so the dashboard always
-works: for teammates without a key, in CI, and during the live demo.
+works without a key, in CI, and during demos.
 
 The model only sees the alert's numbers (no raw rows of data) and is told to
 use only those numbers, so it explains what was measured instead of guessing.

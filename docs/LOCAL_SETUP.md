@@ -1,96 +1,59 @@
-# Local Setup: open and run ML DeployMate in VS Code
+# Local Setup
 
-Step-by-step for all three of us. Do this once per computer.
+How to set up and run ML DeployMate on your own machine.
 
----
+## 1. Clone the repository
 
-## 1. Get the code on your computer
-
-**If you don't have it yet** (Marissa, Aubrenesia):
 ```bash
-cd ~/Developer        # or wherever you keep projects
 git clone https://github.com/obwoj1/ml-deploymate.git
 cd ml-deploymate
 ```
 
-**If you already have it** (Oba: `~/Desktop/ml-deploymate`), just pull the latest:
-```bash
-cd ~/Desktop/ml-deploymate
-git pull origin main
-```
+## 2. Create a virtual environment and install dependencies
 
-## 2. Open it in VS Code
-
-```bash
-code .
-```
-(Or open VS Code → **File → Open Folder…** → pick `ml-deploymate`.)
-
-Install these VS Code extensions (Extensions sidebar, `Cmd+Shift+X`):
-- **Python** (Microsoft)
-- **Jupyter** (Microsoft): for the `.ipynb` notebooks
-
-## 3. Create the virtual environment
-
-The virtual environment (`venv`) is a private copy of Python just for this project, so its packages don't mess with anything else on your computer.
-
-Open the VS Code terminal (**Terminal → New Terminal**, or `` Ctrl+` ``), then:
 ```bash
 python3 -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements-dev.txt
 ```
-When it worked, your terminal prompt starts with `(venv)`. **Activate it every time you open a new terminal.**
 
-## 4. Point VS Code at the venv
+`requirements.txt` contains only what the application needs at runtime (this is what the deployed app installs). `requirements-dev.txt` adds the test and notebook tools.
 
-`Cmd+Shift+P` → **Python: Select Interpreter** → pick the one that says `./venv/bin/python`.
-Now the editor's autocomplete, the run button, and notebooks all use the project's packages.
+Activate the environment in every new terminal session. In VS Code or Cursor, select the interpreter at `./venv/bin/python` (`Cmd+Shift+P` → *Python: Select Interpreter*).
 
-## 5. Add your secrets
+## 3. Optional: configure an API key
 
 ```bash
 cp .env.example .env
 ```
-Open `.env` and paste the API key (ask Oba, and **never commit `.env`**; git already ignores it).
 
-## 6. Get the dataset
+Add an `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) to `.env` to enable AI-generated alert explanations. Without a key, explanations are generated from a template. `.env` is gitignored; never commit it.
 
-Once `scripts/download_data.py` exists (Sprint 1, Oba):
+## 4. Get the data and train the model
+
 ```bash
-python scripts/download_data.py
+python scripts/download_data.py   # downloads UCI Adult into data/raw/
+python scripts/train.py           # compares models, saves models/model.joblib and models/report.json
 ```
-That puts the data in `data/raw/`. Git ignores the folder, so everyone downloads their own copy.
 
-To **look at the data**:
-- Open `notebooks/01_eda.ipynb` → pick the `venv` kernel (top right) → run cells with `Shift+Enter`.
-- Or open the CSV in `data/raw/` directly. The **Data Wrangler** or **Rainbow CSV** extensions make it readable as a table.
+Both steps also run automatically the first time the dashboard or API starts.
 
-## 7. Run things (as they get built)
+## 5. Run
 
-| What | Command |
+| Task | Command |
 |---|---|
+| Dashboard | `streamlit run app/Home.py` (run from the project root so the theme in `.streamlit/config.toml` is applied) |
+| REST API | `uvicorn api.main:app --reload`, then open http://localhost:8000/docs |
 | Tests | `pytest` |
-| API | `uvicorn api.main:app --reload` → http://localhost:8000/docs |
-| Dashboard | `streamlit run app/Home.py` → opens in your browser |
+| Watch a drift scenario in the terminal | `python scripts/simulate.py sudden_shift --explain` |
+| Re-run the monitor evaluation | `python scripts/evaluate_monitor.py` |
+| Exploratory analysis | open `notebooks/01_eda.ipynb` with the `venv` kernel |
 
-## 8. Daily workflow (one branch per person)
+## 6. Contributing
 
-Your branch: `backend` (Oba), `frontend-aubrenesia`, or `frontend-marissa`.
+1. Create a branch from `main`.
+2. Commit focused changes with descriptive messages.
+3. Run `pytest` before pushing.
+4. Open a pull request into `main`; at least one other team member reviews it before it is merged.
 
-**First time only:**
-```bash
-git checkout -b frontend-yourname        # create your branch
-git push -u origin frontend-yourname
-```
-
-**Every session:**
-```bash
-git checkout frontend-yourname          # your one branch
-git pull origin main                    # bring in teammates' merged work
-# ...work, save, test...
-git add <files> && git commit -m "Describe what you did"
-git push
-```
-When a chunk of work is done and tested, open a PR from your branch into `main` on GitHub. After it's merged, **keep using the same branch**.
-Then log what you did in [PROGRESS.md](../PROGRESS.md).
+Merges into `main` redeploy the live application automatically.

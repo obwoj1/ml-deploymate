@@ -1,6 +1,6 @@
 """The ONE module the dashboard (app/) is allowed to import.
 
-Frontend team: call these functions and nothing else from `deploymate`.
+Dashboard pages and the API call these functions and nothing else from `deploymate`.
 They now run the REAL model, monitor and AI explanations. The function names
 and return shapes are the same as the mock version (tests/test_service.py
 enforces that), so pages built against the mock work unchanged.
