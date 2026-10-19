@@ -1,6 +1,6 @@
 # Project Title: ML DeployMate
 
->>> ML DeployMate monitors deployed machine-learning models and catches problems before users notice them. Statistical drift tests and an Isolation Forest anomaly detector flag degrading models in real time, and a Claude-powered assistant explains each alert in plain English. It also generates deployment configs. *(🚧 In progress. See [BLUEPRINT.md](BLUEPRINT.md) for the full plan.)*
+>>> ML DeployMate monitors deployed machine-learning models and catches problems before users notice them. Statistical drift tests and an Isolation Forest anomaly detector flag degrading models in real time, and a Claude-powered assistant explains each alert in plain English. It also generates deployment configs. **Live demo: [https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app](https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app)**
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
@@ -11,7 +11,8 @@ As per course requirements, all three members must actively collaborate and comm
 ---
 
 ## 🚀 Live Demo
-*   **Application URL:** *TBD (Streamlit Community Cloud / Hugging Face Spaces)*
+*   **Application URL:** **[https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app](https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app)** (Streamlit Community Cloud)
+*   *First load after the app has been idle can take ~30 seconds while it wakes up and sets up the model.*
 *   *Note: This live demo must be fully functional and accessible during the live project presentation.*
 
 ### 🎥 Project Walkthrough
