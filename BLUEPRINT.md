@@ -100,7 +100,7 @@ ml-deploymate/
 
 ## 6. Team & ownership
 
-> Team of 3: Obaloluwa Wojuade (`obwoj1`), Marissa Savage (`sadiebird5`), Aubrenesia Tomilson (`aubrenesia`).
+> Team of 3: Obaloluwa Wojuade (`obwoj1`), Marissa Savage (`sadiebird5`), Aubrenesia Tomlinson (`aubrenesia`).
 > **Split decided 2026-10-08:** Oba builds the ML + backend; Marissa and Aubrenesia build the frontend dashboard. Oba walks the team through the ML/backend once it's built so everyone can present it.
 
 | Area | Owner | Folders |
@@ -153,7 +153,7 @@ Per-person checklists: [docs/TASKS.md](docs/TASKS.md).
 
 ## 10. Open questions
 
-1. ~~Third member~~ Aubrenesia Tomilson (`aubrenesia`), invited 2026-10-06.
+1. ~~Third member~~ Aubrenesia Tomlinson (`aubrenesia`), invited 2026-10-06.
 2. ~~Dr. Dacon's GitHub username~~ `daconjam` (invited)
 3. ~~Marissa's GitHub username?~~ `sadiebird5` (verified: Marissa Savage)
 4. ~~LLM provider~~ OpenAI `gpt-4o-mini`, key in Oba's `.env` (see §4c).

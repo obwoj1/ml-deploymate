@@ -59,10 +59,10 @@ The frontend **only** imports from `deploymate.service`. Nothing else. Oba ships
 - [x] `deploymate/simulate/scenarios.py` + tests: labeled drift scenarios (+ `scripts/simulate.py` to watch them)
 
 **Aubrenesia: App shell**
-- [ ] `app/Home.py`: Streamlit entry point, sidebar navigation, page layout
-- [ ] `.streamlit/config.toml`: theme (colors, font)
-- [ ] Empty stub pages for all 5 pages so the navigation works
-- [ ] Sketch wireframes for her pages (paper or Figma, screenshots in `assets/wireframes/`)
+- [x] `app/Home.py`: Streamlit entry point, sidebar navigation, page layout
+- [x] `.streamlit/config.toml`: theme (colors, font)
+- [x] Empty stub pages for all 5 pages so the navigation works
+- [x] Sketch wireframes for her pages (paper or Figma, screenshots in `assets/wireframes/`)
 
 **Marissa: Page designs**
 - [ ] Sketch wireframes for Live Monitor + Model Performance (`assets/wireframes/`)
