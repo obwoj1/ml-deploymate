@@ -93,6 +93,7 @@ The LLM is the assistant layer on top.
 ## 📓 Session log
 
 ### 2026-10-19
+- **`docs/HOW_IT_WORKS.md`:** complete explainer of every part (data → model → drift → simulator → anomaly → evaluation → AI → service → API → dashboard → tests → deploy), every decision and why, limitations, likely questions with answers, glossary, file map. For the team walkthrough and presentation.
 - **Deploy-readiness checked:** cloned the repo fresh (no data, no model, no key), installed only `requirements.txt` on Python 3.13, cold-started: the app downloaded the data and trained the model itself, ran on real data, all 6 pages loaded with 0 errors. First load on a new server ~10–15s (download ~8s), then instant. `requirements.txt` is now pinned + runtime-only; tests/notebooks moved to `requirements-dev.txt`; CI on 3.13. Guide for Bree: `docs/DEPLOY.md` (incl. "open the site 10 min before presenting; free apps sleep").
 - **FastAPI built:** `api/main.py`, thin wrappers over `service.py`: `/health`, `/predict`, `/monitor/check` (send any batch, get drift report + alert), scenario replay, `/alerts`, `/alerts/{id}/explain`, `/model/report`, `/config`. Input validated with pydantic (e.g. age 17–90). 97 tests. Run: `uvicorn api.main:app --reload` → `/docs`.
 - **API credits:** ChatGPT/Claude subscriptions don't include API credits (both APIs are prepaid). Options: add $5 to OpenAI, or present with template explanations.
