@@ -152,3 +152,12 @@ def test_provider_order_prefers_claude(monkeypatch):
     assert explain._pick_provider()[0] == "openai"
     monkeypatch.delenv("OPENAI_API_KEY")
     assert explain._pick_provider() is None
+
+
+def test_workspace_header_sent_when_set(monkeypatch):
+    from deploymate.llm import claude
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("ANTHROPIC_WORKSPACE_ID", "wrkspc_123")
+    assert claude.make_client().default_headers["anthropic-workspace-id"] == "wrkspc_123"
+    monkeypatch.delenv("ANTHROPIC_WORKSPACE_ID")
+    assert "anthropic-workspace-id" not in claude.make_client().default_headers

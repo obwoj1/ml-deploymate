@@ -15,10 +15,16 @@ MODEL = "claude-opus-5-5"
 
 
 def make_client():
-    """Anthropic client, or None when no key is set."""
+    """Anthropic client, or None when no key is set.
+
+    An organization-level key (not scoped to one workspace) also needs the
+    workspace ID: set ANTHROPIC_WORKSPACE_ID and it's sent as a header.
+    """
     if not os.getenv("ANTHROPIC_API_KEY"):
         return None
-    return anthropic.Anthropic(timeout=30, max_retries=1)
+    workspace = os.getenv("ANTHROPIC_WORKSPACE_ID")
+    headers = {"anthropic-workspace-id": workspace} if workspace else None
+    return anthropic.Anthropic(timeout=30, max_retries=1, default_headers=headers)
 
 
 def explain(client, system_prompt: str, user_content: str, schema):
