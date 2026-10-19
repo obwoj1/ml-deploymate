@@ -28,7 +28,7 @@ def run(alert, scenarios):
 
 
 def test_always_alert_catches_everything_but_false_alarms_on_healthy():
-    res = run(True, ["sudden_shift"])["combined"]["sudden_shift"]
+    res = run(True, ["sudden_shift"])["drift_only"]["sudden_shift"]
     # sudden_shift: 5 healthy then 5 broken batches, x2 runs
     assert (res["tp"], res["fp"], res["fn"], res["tn"]) == (10, 10, 0, 0)
     assert res["recall"] == 1.0 and res["precision"] == 0.5
@@ -37,13 +37,13 @@ def test_always_alert_catches_everything_but_false_alarms_on_healthy():
 
 
 def test_never_alert_misses_everything():
-    res = run(False, ["sudden_shift"])["combined"]["sudden_shift"]
+    res = run(False, ["sudden_shift"])["drift_only"]["sudden_shift"]
     assert res["recall"] == 0.0 and res["false_alarm_rate"] == 0.0
     assert res["mean_detection_delay"] is None and res["runs_detected"] == "0/2"
 
 
 def test_healthy_scenario_has_no_precision_or_recall():
-    res = run(False, ["healthy"])["combined"]["healthy"]
+    res = run(False, ["healthy"])["drift_only"]["healthy"]
     assert res["precision"] is None and res["recall"] is None
     assert res["false_alarm_rate"] == 0.0
 
@@ -51,4 +51,4 @@ def test_healthy_scenario_has_no_precision_or_recall():
 def test_every_detector_and_overall_reported():
     res = run(True, ["healthy", "noise"])
     assert set(res) == set(DETECTORS)
-    assert {"healthy", "noise", "overall"} == set(res["combined"])
+    assert {"healthy", "noise", "overall"} == set(res["drift_only"])

@@ -175,7 +175,7 @@
         "tn": 1312
       }
     },
-    "combined": {
+    "either": {
       "healthy": {
         "precision": null,
         "recall": null,
