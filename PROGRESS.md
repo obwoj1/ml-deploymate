@@ -93,6 +93,11 @@ The LLM is the assistant layer on top.
 
 ## 📓 Session log
 
+### 2026-10-19 (evening)
+- **Deployed to Streamlit Community Cloud:** https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app (branch `main`, `app/Home.py`, Python 3.13, `ANTHROPIC_API_KEY` in Secrets). First attempt showed navy: it was deployed from Marissa's branch (her theme); redeployed from `main` (Bree's teal theme).
+- Overview page missed PR #28 by minutes (Marissa merged first); went in as PR #30.
+- README Live Demo URL filled in. Remaining required item: `demo.gif`.
+
 ### 2026-10-19
 - **Dashboard MVP pages built** (Oba): Live Monitor (scenario replay with live accuracy + drift charts, red bars/banner on alert), Alerts (severity filter, Explain with AI, cached per alert), Model Performance (scores, confusion matrix, ROC, importance, comparison, train vs test), Config Generator (form → tabs + downloads). Uses Bree's Home + theme unchanged. Overview built by Oba too (crunch time; Marissa's branch version not merged). Tested with Streamlit AppTest clicks + in the browser; fixed a duplicate-chart crash at the end of a run.
 - Note: run Streamlit from the project folder, or the theme in `.streamlit/config.toml` isn't loaded (falls back to default navy).
