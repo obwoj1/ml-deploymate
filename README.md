@@ -49,6 +49,14 @@ cp .env.example .env      # then add your API key
 
 Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
 
+### Run it
+```bash
+streamlit run app/Home.py            # dashboard → http://localhost:8501
+uvicorn api.main:app --reload        # REST API → http://localhost:8000/docs
+pytest                               # tests
+```
+The first start downloads the dataset and trains the model automatically (~15s). Deployment: [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ---
 
 ## 📊 Dataset
