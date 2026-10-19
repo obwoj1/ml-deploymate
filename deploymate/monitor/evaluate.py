@@ -11,10 +11,10 @@ From those: precision (when it alerts, is it right?), recall (what share of
 broken batches does it catch?), F1 (balance of the two), false-alarm rate, and
 detection delay (how many broken batches go by before the first alert).
 
-We score three detectors from the same reports, to show what each half adds:
-    drift_only    the per-feature drift tests
-    anomaly_only  the model-behavior anomaly detector
-    combined      either one (what DeployMate actually uses)
+We score detectors from the same reports, to show what each part adds:
+    drift_only    the per-feature drift tests (what DeployMate alerts on)
+    anomaly_only  the model-behavior anomaly detector (info signal)
+    either        alert if either fires (the design we evaluated and rejected)
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from deploymate.simulate.scenarios import SCENARIOS, simulate
 DETECTORS = {
     "drift_only": lambda r: bool(r["drifted_features"]),
     "anomaly_only": lambda r: r["anomaly"]["anomalous"],
-    "combined": lambda r: r["alert"],
+    "either": lambda r: bool(r["drifted_features"]) or r["anomaly"]["anomalous"],
 }
 
 

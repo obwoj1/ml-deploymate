@@ -46,10 +46,10 @@ def main(runs: int) -> None:
     print(f"Running every scenario {runs} times (40 batches x 400 rows each)...")
     results = evaluate(monitor, X_test, y_test, seeds=range(runs))
 
-    combined = results["combined"]
-    print(f"\nDeployMate monitor (combined), {runs} runs per scenario\n")
+    deploymate = results["drift_only"]
+    print(f"\nDeployMate monitor (alerts = drift tests), {runs} runs per scenario\n")
     print(f"{'scenario':<16}{'precision':>10}{'recall':>8}{'F1':>7}{'false alarms':>14}{'delay':>7}{'detected':>10}")
-    for scenario, s in combined.items():
+    for scenario, s in deploymate.items():
         print(f"{scenario:<16}{fmt(s['precision']):>10}{fmt(s['recall']):>8}{fmt(s['f1']):>7}"
               f"{fmt(s['false_alarm_rate'], pct=True):>14}{fmt(s['mean_detection_delay']):>7}{s['runs_detected']:>10}")
 
