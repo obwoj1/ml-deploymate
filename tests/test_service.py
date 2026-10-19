@@ -1,12 +1,25 @@
 """Contract tests for deploymate.service.
 
-These pin down the shapes the dashboard depends on. When the mock internals are
-replaced by the real backend, these tests must still pass unchanged.
+These pin down the shapes the dashboard depends on. Every test runs twice:
+once on demo data (mock) and once on the real backend (skipped when the
+dataset isn't downloaded, e.g. in CI), so both modes return the same shapes.
 """
 
 import pytest
 
 from deploymate import service
+from deploymate.data.download import is_downloaded
+
+
+@pytest.fixture(autouse=True, params=["mock", "real"])
+def mode(request, monkeypatch):
+    if request.param == "real" and not is_downloaded():
+        pytest.skip("real dataset not downloaded")
+    monkeypatch.setenv("DEPLOYMATE_MOCK", "true" if request.param == "mock" else "false")
+    monkeypatch.setenv("LLM_OFFLINE_MODE", "true")  # never call OpenAI from tests
+    if request.param == "real" and service.backend_status()["error"]:
+        pytest.fail(f"real backend failed to start: {service.backend_status()['error']}")
+    return request.param
 
 
 def test_overview_has_dashboard_fields():
@@ -28,7 +41,7 @@ def test_run_scenario_batch_shape(name):
     assert len(batches) == 10
     batch = batches[0]
     assert {"batch_id", "scenario", "metrics", "drift", "alert", "severity"} <= set(batch)
-    assert {"accuracy", "f1", "positive_rate", "mean_confidence", "missing_rate"} <= set(batch["metrics"])
+    assert {"accuracy", "f1", "positive_rate", "mean_confidence", "low_confidence_share", "unknown_rate"} <= set(batch["metrics"])
     assert {"feature", "kind", "statistic", "p_value", "drifted"} <= set(batch["drift"][0])
     assert batch["severity"] in {"none", "medium", "high"}
 
@@ -51,6 +64,10 @@ def test_run_scenario_is_repeatable_with_same_seed():
 def test_unknown_scenario_raises():
     with pytest.raises(ValueError):
         list(service.run_scenario("not_a_scenario"))
+
+
+def test_mode_is_reported():
+    assert service.get_overview()["mock"] == (service.backend_status()["real"] is False)
 
 
 def test_alerts_and_explanations():
@@ -76,3 +93,17 @@ def test_generate_config_returns_all_files(framework):
     files = service.generate_config({"model_name": "demo", "port": 8501, "framework": framework})
     assert {"dockerfile", "github_actions", "env_example"} <= set(files)
     assert "8501" in files["dockerfile"]
+
+
+def test_real_run_records_alerts(mode):
+    if mode != "real":
+        pytest.skip("real backend only")
+    before = service.get_overview()["batches_processed"]
+    list(service.run_scenario("missing_values", n_batches=20))
+    overview = service.get_overview()
+    assert overview["batches_processed"] == before + 20
+    assert overview["status"] == "degraded" and overview["active_alerts"] > 0
+    newest = service.list_alerts()[0]
+    assert newest["scenario"] == "missing_values" and "workclass" in newest["features"]
+    explanation = service.explain_alert(newest["id"])
+    assert explanation["source"] == "template" and "Unknown" in explanation["summary"]

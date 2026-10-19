@@ -1,215 +1,209 @@
 """The ONE module the dashboard (app/) is allowed to import.
 
 Frontend team: call these functions and nothing else from `deploymate`.
-Right now they return realistic MOCK data so you can build every page today.
-Later the backend swaps the internals for the real model and monitor, and the
-function names and return shapes stay exactly the same (tests/test_service.py
-enforces that).
+They now run the REAL model, monitor and AI explanations. The function names
+and return shapes are the same as the mock version (tests/test_service.py
+enforces that), so pages built against the mock work unchanged.
 
-All return values are plain dicts/lists, so they're easy to drop into
-st.metric, st.dataframe, and Plotly.
+Demo data fallback: if the real backend can't start (no dataset and no
+internet, for example) or DEPLOYMATE_MOCK=true, every function returns the
+mock data from mock_service.py instead, and get_overview()["mock"] is True.
+
+First call takes a few seconds (load data + model, calibrate the monitor);
+after that everything is cached in memory. If the dataset or trained model is
+missing, it downloads / trains them automatically (so the live site sets
+itself up).
 """
 
 from __future__ import annotations
 
-import math
+import json
+import os
+import threading
+from datetime import datetime
+from pathlib import Path
 from typing import Iterator
 
-import numpy as np
+from deploymate import mock_service
 
-MOCK = True  # flips to False once the real backend is wired in
+ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = ROOT / "models" / "model.joblib"
+REPORT_PATH = ROOT / "models" / "report.json"
+DEPLOYMENT_NAME = "income-classifier-v1"
+CALIBRATION_SEED = 100_000  # same as scripts/evaluate_monitor.py
+MAX_ALERTS = 200
 
-FEATURES_NUMERIC = ["age", "hours_per_week", "education_num", "capital_gain"]
-FEATURES_CATEGORICAL = ["workclass", "occupation", "marital_status", "native_country"]
+generate_config = mock_service.generate_config  # template-based; no model needed
 
-SCENARIOS = {
-    "healthy": "Normal traffic: nothing changes.",
-    "gradual_shift": "Ages slowly creep upward batch after batch.",
-    "sudden_shift": "Hours-per-week jumps suddenly halfway through.",
-    "category_shift": "The occupation mix changes sharply.",
-    "missing_values": "An upstream pipeline breaks and fields go blank.",
-    "noise": "Random noise is added to numeric fields.",
-}
 
-# Which feature each scenario breaks, and from which batch on.
-_SCENARIO_TARGET = {
-    "gradual_shift": ("age", 0),
-    "sudden_shift": ("hours_per_week", 0.5),
-    "category_shift": ("occupation", 0.4),
-    "missing_values": ("workclass", 0.5),
-    "noise": ("capital_gain", 0.3),
-}
+class _Backend:
+    """Everything loaded once: data, model, calibrated monitor, alert log."""
 
-_ALERTS = [
-    {"id": 1, "time": "2026-10-08 09:14", "scenario": "sudden_shift", "batch_id": 16,
-     "severity": "high", "features": ["hours_per_week"], "accuracy": 0.79, "psi_max": 0.41},
-    {"id": 2, "time": "2026-10-08 10:02", "scenario": "category_shift", "batch_id": 13,
-     "severity": "medium", "features": ["occupation"], "accuracy": 0.82, "psi_max": 0.18},
-    {"id": 3, "time": "2026-10-08 11:47", "scenario": "missing_values", "batch_id": 15,
-     "severity": "high", "features": ["workclass", "occupation"], "accuracy": 0.77, "psi_max": 0.0},
-]
+    def __init__(self):
+        import joblib
+
+        from deploymate.data.download import download, is_downloaded
+        from deploymate.data.load import load_dataset
+        from deploymate.monitor.pipeline import Monitor
+        from deploymate.simulate.scenarios import simulate
+
+        if not is_downloaded():
+            download(verbose=False)
+        X_train, self.X_test, y_train, self.y_test = load_dataset()
+
+        if not MODEL_PATH.exists():  # live site / fresh clone: quick fit of the chosen model
+            from deploymate.model.pipeline import build_model
+            from deploymate.model.train import candidates
+            MODEL_PATH.parent.mkdir(exist_ok=True)
+            joblib.dump(build_model(candidates()["Gradient Boosting"]).fit(X_train, y_train), MODEL_PATH)
+        model = joblib.load(MODEL_PATH)
+
+        healthy = [b.X for b in simulate("healthy", self.X_test, self.y_test,
+                                         n_batches=200, seed=CALIBRATION_SEED)]
+        self.monitor = Monitor.from_data(model, X_train.sample(5000, random_state=0), healthy)
+        self.report = json.loads(REPORT_PATH.read_text())
+        self.alerts: list[dict] = []          # newest last
+        self.reports: dict[int, dict] = {}    # alert id -> full monitor report
+        self.batches_processed = 0
+        self.last_updated = None
+        self.lock = threading.Lock()          # Streamlit serves sessions on threads
+
+    def record(self, scenario: str, report: dict) -> None:
+        with self.lock:
+            self.batches_processed += 1
+            self.last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if not report["alert"]:
+                return
+            alert_id = (self.alerts[-1]["id"] + 1) if self.alerts else 1
+            drifted = [d for d in report["drift"] if d["drifted"]]
+            self.alerts.append({
+                "id": alert_id,
+                "time": self.last_updated,
+                "scenario": scenario,
+                "batch_id": report["batch_id"],
+                "severity": report["severity"],
+                "features": report["drifted_features"],
+                "accuracy": report["metrics"].get("accuracy"),
+                "psi_max": round(max((d["statistic"] for d in drifted if d["kind"] == "numeric"),
+                                     default=0.0), 4),
+            })
+            self.reports[alert_id] = report
+            if len(self.alerts) > MAX_ALERTS:  # keep memory bounded on a long-running server
+                dropped = self.alerts.pop(0)
+                self.reports.pop(dropped["id"], None)
+
+
+_backend: _Backend | None = None
+_backend_error: str | None = None
+_init_lock = threading.Lock()
+
+
+def _get_backend() -> _Backend | None:
+    """The real backend, or None (→ mock data) if it's disabled or failed to start."""
+    global _backend, _backend_error
+    if os.getenv("DEPLOYMATE_MOCK", "false").lower() == "true":
+        return None
+    if _backend is None and _backend_error is None:
+        with _init_lock:
+            if _backend is None and _backend_error is None:
+                try:
+                    _backend = _Backend()
+                except Exception as err:  # noqa: BLE001 - any failure → demo data, never a crash
+                    _backend_error = f"{type(err).__name__}: {err}"
+    return _backend
+
+
+def backend_status() -> dict:
+    """For debugging/the Home page: is the real backend running, and if not, why?"""
+    backend = _get_backend()
+    return {"real": backend is not None, "error": _backend_error}
 
 
 def get_overview() -> dict:
     """Headline numbers for the Overview page."""
-    return {
-        "deployment": "income-classifier-v1",
-        "model": "Gradient Boosting",
-        "status": "degraded" if _ALERTS else "healthy",
-        "batches_processed": 180,
-        "active_alerts": len(_ALERTS),
-        "test_accuracy": 0.871,
-        "last_updated": "2026-10-08 11:47",
-        "mock": MOCK,
-    }
+    b = _get_backend()
+    if b is None:
+        return mock_service.get_overview()
+    with b.lock:
+        return {
+            "deployment": DEPLOYMENT_NAME,
+            "model": b.report["model"],
+            "status": "degraded" if b.alerts else "healthy",
+            "batches_processed": b.batches_processed,
+            "active_alerts": len(b.alerts),
+            "test_accuracy": b.report["metrics"]["test"]["accuracy"],
+            "last_updated": b.last_updated or "-",
+            "mock": False,
+        }
 
 
 def list_scenarios() -> list[dict]:
     """Scenarios the Live Monitor page can replay."""
-    return [{"name": name, "description": desc} for name, desc in SCENARIOS.items()]
+    from deploymate.simulate.scenarios import SCENARIOS
+    return [{"name": name, "description": desc} for name, (desc, _, _) in SCENARIOS.items()]
 
 
 def run_scenario(name: str, n_batches: int = 30, seed: int = 0) -> Iterator[dict]:
-    """Yield one batch report at a time, like live traffic arriving.
+    """Yield one monitor report per batch, like live traffic arriving.
 
     Each report:
         batch_id, scenario,
-        metrics: {accuracy, f1, positive_rate, mean_confidence, missing_rate},
-        drift:   [{feature, kind, statistic, p_value, drifted}, ...],
-        alert:   bool, severity: "none" | "medium" | "high"
+        metrics: {accuracy, f1, positive_rate, mean_confidence, low_confidence_share, unknown_rate},
+        drift:   [{feature, kind, statistic, p_value, drifted, shift?}, ...],
+        drifted_features, anomaly (info only), alert: bool, severity: "none" | "medium" | "high"
+    Alerts are recorded, so they show up in list_alerts() / get_overview().
     """
+    b = _get_backend()
+    if b is None:
+        yield from mock_service.run_scenario(name, n_batches, seed)
+        return
+
+    from deploymate.simulate.scenarios import SCENARIOS, simulate
     if name not in SCENARIOS:
         raise ValueError(f"Unknown scenario {name!r}. Choose from {list(SCENARIOS)}")
+    for batch in simulate(name, b.X_test, b.y_test, n_batches=n_batches, seed=seed):
+        report = b.monitor.check(batch.X, batch.y, batch_id=batch.batch_id)
+        report["scenario"] = name
+        b.record(name, report)
+        yield report
 
-    rng = np.random.default_rng(seed)
-    target, start = _SCENARIO_TARGET.get(name, (None, 1.0))
 
-    for i in range(n_batches):
-        progress = i / max(n_batches - 1, 1)
-        # How broken this batch is: 0 = healthy, 1 = fully drifted.
-        if name == "gradual_shift":
-            strength = progress
-        elif target and progress >= start:
-            strength = 1.0
-        else:
-            strength = 0.0
-
-        drift = []
-        for feature in FEATURES_NUMERIC + FEATURES_CATEGORICAL:
-            hit = feature == target
-            if feature in FEATURES_NUMERIC:
-                stat = abs(rng.normal(0.03, 0.015)) + (0.45 * strength if hit else 0)
-                drifted = stat >= 0.2
-                kind = "numeric"
-            else:
-                stat = abs(rng.normal(0.02, 0.01)) + (0.25 * strength if hit else 0)
-                drifted = stat >= 0.1
-                kind = "categorical"
-            p_value = float(math.exp(-40 * stat))
-            drift.append({"feature": feature, "kind": kind, "statistic": round(float(stat), 4),
-                          "p_value": round(p_value, 6), "drifted": bool(drifted)})
-
-        missing_rate = 0.07 + (0.25 * strength if name == "missing_values" else 0)
-        accuracy = 0.87 - 0.09 * strength + rng.normal(0, 0.008)
-        metrics = {
-            "accuracy": round(float(accuracy), 4),
-            "f1": round(float(accuracy - 0.16 + rng.normal(0, 0.01)), 4),
-            "positive_rate": round(float(0.24 + 0.06 * strength + rng.normal(0, 0.01)), 4),
-            "mean_confidence": round(float(0.84 - 0.08 * strength + rng.normal(0, 0.005)), 4),
-            "missing_rate": round(float(missing_rate), 4),
-        }
-
-        n_drifted = sum(d["drifted"] for d in drift)
-        alert = n_drifted > 0 or missing_rate > 0.15
-        severity = "none" if not alert else ("high" if strength >= 0.7 else "medium")
-        yield {"batch_id": i + 1, "scenario": name, "metrics": metrics,
-               "drift": drift, "alert": alert, "severity": severity}
+def _ensure_demo_alerts(b: _Backend) -> None:
+    """On a fresh server the alert log is empty; seed it with one run of a few scenarios."""
+    if b.alerts:
+        return
+    for scenario in ["sudden_shift", "category_shift", "missing_values"]:
+        for report in run_scenario(scenario, n_batches=30, seed=7):
+            if report["alert"]:
+                break  # one alert per scenario is enough for the demo
 
 
 def list_alerts() -> list[dict]:
     """Alerts for the Alerts page, newest first."""
-    return sorted(_ALERTS, key=lambda a: a["time"], reverse=True)
+    b = _get_backend()
+    if b is None:
+        return mock_service.list_alerts()
+    _ensure_demo_alerts(b)
+    with b.lock:
+        return sorted(b.alerts, key=lambda a: a["id"], reverse=True)
 
 
 def explain_alert(alert_id: int) -> dict:
-    """Plain-English explanation of one alert (the LLM's job once it's real)."""
-    alert = next((a for a in _ALERTS if a["id"] == alert_id), None)
-    if alert is None:
+    """Plain-English explanation of one alert (OpenAI, or a template if unavailable)."""
+    b = _get_backend()
+    if b is None:
+        return mock_service.explain_alert(alert_id)
+    with b.lock:
+        report = b.reports.get(alert_id)
+    if report is None:
         raise ValueError(f"No alert with id {alert_id}")
-    features = ", ".join(alert["features"])
-    return {
-        "alert_id": alert_id,
-        "summary": f"Batch {alert['batch_id']} no longer looks like the training data: "
-                   f"{features} shifted, and accuracy fell to {alert['accuracy']:.0%}.",
-        "likely_cause": f"The incoming values for {features} changed. That usually means "
-                        "a new user population or a broken upstream data source.",
-        "suggested_action": "Check the upstream data pipeline for recent changes. If the "
-                            "shift is real, collect fresh labeled data and retrain.",
-        "source": "mock",
-    }
+    from deploymate.llm.explain import explain_alert as llm_explain
+    return {"alert_id": alert_id, **llm_explain(report)}
 
 
 def get_model_report() -> dict:
-    """Everything the Model Performance page needs."""
-    fpr = [0.0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
-    tpr = [0.0, 0.35, 0.55, 0.72, 0.85, 0.91, 0.96, 0.98, 1.0]
-    return {
-        "model": "Gradient Boosting",
-        "metrics": {
-            "train": {"accuracy": 0.884, "precision": 0.80, "recall": 0.66, "f1": 0.72, "roc_auc": 0.935},
-            "test": {"accuracy": 0.871, "precision": 0.78, "recall": 0.63, "f1": 0.70, "roc_auc": 0.926},
-        },
-        "confusion_matrix": {"labels": ["<=50K", ">50K"], "matrix": [[11800, 635], [1420, 2426]]},
-        "roc_curve": {"fpr": fpr, "tpr": tpr},
-        "feature_importance": [
-            {"feature": "relationship", "importance": 0.24},
-            {"feature": "capital_gain", "importance": 0.19},
-            {"feature": "education_num", "importance": 0.15},
-            {"feature": "marital_status", "importance": 0.12},
-            {"feature": "age", "importance": 0.10},
-            {"feature": "occupation", "importance": 0.08},
-            {"feature": "hours_per_week", "importance": 0.07},
-            {"feature": "capital_loss", "importance": 0.05},
-        ],
-    }
-
-
-def generate_config(form: dict) -> dict:
-    """Generate deployment files from the Config Generator form.
-
-    form keys: model_name, python_version, port, framework ("fastapi" | "streamlit")
-    """
-    name = form.get("model_name", "my-model")
-    py = form.get("python_version", "3.11")
-    port = int(form.get("port", 8000))
-    if form.get("framework", "fastapi") == "streamlit":
-        cmd = f'["streamlit", "run", "app.py", "--server.port", "{port}"]'
-    else:
-        cmd = f'["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "{port}"]'
-
-    dockerfile = (
-        f"FROM python:{py}-slim\n"
-        "WORKDIR /app\n"
-        "COPY requirements.txt .\n"
-        "RUN pip install --no-cache-dir -r requirements.txt\n"
-        "COPY . .\n"
-        f"EXPOSE {port}\n"
-        f"CMD {cmd}\n"
-    )
-    github_actions = (
-        f"name: {name} CI\n"
-        "on: [push, pull_request]\n"
-        "jobs:\n"
-        "  test:\n"
-        "    runs-on: ubuntu-latest\n"
-        "    steps:\n"
-        "      - uses: actions/checkout@v4\n"
-        "      - uses: actions/setup-python@v5\n"
-        "        with:\n"
-        f'          python-version: "{py}"\n'
-        "      - run: pip install -r requirements.txt\n"
-        "      - run: pytest -q\n"
-    )
-    env_example = f"MODEL_NAME={name}\nPORT={port}\nLOG_LEVEL=info\n"
-    return {"dockerfile": dockerfile, "github_actions": github_actions,
-            "env_example": env_example, "source": "mock"}
+    """Everything the Model Performance page needs (from models/report.json)."""
+    b = _get_backend()
+    if b is None:
+        return mock_service.get_model_report()
+    return b.report
