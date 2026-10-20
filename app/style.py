@@ -42,6 +42,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-.5px}
 [data-testid="stVerticalBlockBorderWrapper"]:hover{transform:translateY(-3px);border-color:#B6FF3C;
   box-shadow:0 8px 30px rgba(182,255,60,.12)}
 
+/* page numbers and icons */  
 .num{font-family:'JetBrains Mono',monospace;color:#B6FF3C;font-size:.85rem;letter-spacing:2px}
 .ico{font-size:1.6rem;margin:6px 0}
 

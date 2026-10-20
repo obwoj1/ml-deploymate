@@ -1,0 +1,242 @@
+# ML DeployMate User Guide
+
+ML DeployMate helps users monitor a machine-learning model for data drift.
+Data drift happens when incoming data becomes different from the data used
+to train the model.
+
+The application includes an Overview, Live Monitor, Alerts, Model Performance,
+and Config Generator page.
+
+## Getting Started
+
+1. Open the hosted application or start the dashboard locally.
+2. To start it locally, run this command from the project folder:
+
+   streamlit run app/Home.py
+
+3. Open the local address displayed in the terminal, usually
+   http://localhost:8501.
+4. Allow the application to finish loading. The first startup may take
+   longer because the application downloads the dataset and trains the model.
+5. Check the Home page for the application's status and any demo-data banner.
+6. Use the sidebar to move between pages.
+
+The monitoring demonstration uses replayed census data with simulated changes.
+It is not connected to a real production data stream. If the backend cannot
+initialize, the application can fall back to mock demonstration data.
+
+## Overview
+
+### Purpose
+
+The Overview page provides a quick summary of model health and monitoring
+activity.
+
+### Steps
+
+1. Select Overview from the sidebar.
+2. Review the model status.
+3. Review the displayed accuracy to understand the model's recorded performance.
+4. Check the batch count to see how much monitoring activity is reported.
+5. Check the alert count for detected data changes.
+6. Open Live Monitor to run a monitoring scenario.
+7. Open Alerts to investigate available alerts.
+
+### Understanding the Results
+
+- Model status summarizes the health information reported by the application.
+- Accuracy describes how often the model's predictions matched the correct
+  labels in the reported evaluation.
+- A batch is a group of data records checked together.
+- Alerts indicate detected changes in the input data.
+
+Recorded test accuracy does not guarantee that the model will perform equally
+well on future data. Drift alerts help identify changes that need investigation.
+
+## Live Monitor
+
+### Purpose
+
+The Live Monitor page demonstrates how DeployMate checks incoming batches
+against reference data from the training dataset.
+
+### Steps
+
+1. Select Live Monitor from the sidebar.
+2. Choose a monitoring scenario from the available options.
+3. Use the page's run control to start the scenario.
+4. Watch the displayed batch results and charts.
+5. Look for changes in the input data and any reported alerts.
+6. Open Alerts to investigate the detected changes.
+
+### Available Scenarios
+
+| Scenario | What It Demonstrates |
+| --- | --- |
+| healthy | Unmodified data used to demonstrate normal traffic. |
+| gradual_shift | Ages gradually increase during the run. |
+| sudden_shift | Hours worked per week suddenly increase. |
+| category_shift | The distribution of occupations changes. |
+| missing_values | Missing employer, occupation, and country values increase. |
+| noise | Random variation is added to age and working hours. |
+
+### Suggested First Run
+
+1. Run healthy to observe normal monitoring behavior.
+2. Run sudden_shift to observe a clear change.
+3. Compare the monitoring results.
+4. Review the resulting alerts.
+
+### Understanding the Results
+
+DeployMate compares each batch with a reference sample representing normal data.
+Its drift tests check whether numeric values or category distributions have
+changed enough to cross the configured thresholds.
+
+Model-behavior anomaly indicators provide additional information. They do not
+independently trigger drift alerts in the documented implementation.
+
+A drift alert means the data changed. It does not, by itself, prove that the model's accuracy decreased.
+
+## Alerts
+
+### Purpose
+
+The Alerts page allows users to investigate detected drift and request
+plain-language explanations.
+
+### Steps
+
+1. Select Alerts from the sidebar.
+2. Review the available alerts.
+3. Inspect an alert's batch information, severity, and affected features.
+4. Review the reported differences between the reference data and the batch.
+5. Select Explain with AI for the alert you want to understand.
+6. Read the summary, likely cause, and suggested action.
+7. Use the measured changes to decide what to investigate next.
+
+### Alert Severity
+
+- Medium: One feature drifted without meeting the severe-shift threshold.
+- High: At least one feature had a severe shift, or two or more features drifted.
+
+Severity describes the detected shift, rather than confirming its business impact.
+
+### Explanations
+
+Explanations describe what changed, possible causes, and suggested next steps.
+Possible causes should be investigated rather than treated as confirmed facts.
+
+If an AI provider is unavailable or no API key is configured, DeployMate uses
+a template explanation based on the alert's measurements.
+
+### If No Alerts Appear
+
+1. Open Live Monitor.
+2. Run a scenario such as sudden_shift.
+3. Return to Alerts and review the available results.
+
+Alerts are stored in memory and can reset when the application server restarts.
+
+## Model Performance
+
+### Purpose
+
+The Model Performance page displays evaluation results for the monitored
+income-classification model.
+
+The model predicts whether a person's annual income is above $50,000 using
+the UCI Adult census dataset.
+
+### Steps
+
+1. Select Model Performance from the sidebar.
+2. Review the reported evaluation scores.
+3. Examine the confusion matrix to see correct and incorrect predictions.
+4. Review the ROC curve to understand classification performance across
+   decision thresholds.
+5. Review feature importance to see which inputs the model relies on most.
+
+### Metrics
+
+| Metric | Meaning |
+| --- | --- |
+| Accuracy | The proportion of all predictions that were correct. |
+| Precision | Of the people predicted to earn above $50,000, the proportion who actually did. |
+| Recall | Of the people who actually earned above $50,000, the proportion the model identified. |
+| F1 Score | A combined measure of precision and recall. |
+| ROC-AUC | How well the model ranks the two income classes across decision thresholds. |
+
+### Reading the Confusion Matrix
+
+The confusion matrix compares actual income classes with predicted classes.
+
+- Correct predictions match the actual class.
+- False positives predict income above $50,000 when the actual class is
+  $50,000 or less.
+- False negatives predict income of $50,000 or less when the actual class
+  is above $50,000.
+
+### Reading Feature Importance
+
+Higher importance means that disrupting a feature had a larger effect on the
+model's measured performance.
+
+Feature importance describes the model's reliance on an input. It does not
+prove that the input causes income differences.
+
+### Important Distinction
+
+These are model evaluation results. They are separate from the monitor's
+precision and recall, which measure how well DeployMate detects drift.
+
+## Config Generator
+
+### Purpose
+
+The Config Generator creates starter configuration files for deployment
+and project automation.
+
+The documented outputs include a Dockerfile, a continuous integration
+workflow, and an environment configuration file.
+
+### Steps
+
+1. Select Config Generator from the sidebar.
+2. Review the fields and options displayed in the form.
+3. Enter the requested settings for your project.
+4. Check the values before generating the configuration.
+5. Use the page's generate control.
+6. Review the generated contents.
+7. Save the generated files using the page's available output controls.
+8. Follow the deployment documentation to place and use the files correctly.
+
+### Generated Files
+
+| File | Purpose |
+| --- | --- |
+| Dockerfile | Defines instructions for building a container image. |
+| CI workflow | Defines automated project checks, such as tests. |
+| .env file | Defines environment settings used by the application. |
+
+### Before Using the Output
+
+- Review the generated settings and adjust them for your environment.
+- Keep passwords and API keys out of version control.
+- Follow the project's deployment instructions for configuring secrets.
+- Generating configuration files does not automatically deploy the application.
+
+## Recommended Walkthrough
+
+1. Start with Overview to understand the application's status.
+2. Run healthy in Live Monitor.
+3. Run sudden_shift and compare the results.
+4. Open Alerts and request an explanation.
+5. Review the model's evaluation results in Model Performance.
+6. Use Config Generator to inspect deployment configuration examples.
+
+## Further Reading
+
+- [How DeployMate Works](HOW_IT_WORKS.md)
+- [Deployment Guide](DEPLOY.md)
+- [Local Setup Guide](LOCAL_SETUP.md)
