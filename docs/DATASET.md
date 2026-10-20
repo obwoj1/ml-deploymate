@@ -73,7 +73,7 @@ About 7% of training rows (2,399) have at least one missing value. Instead of dr
 ### Job 1: Train the model that DeployMate watches
 We train a classifier (Logistic Regression baseline → Random Forest / Gradient Boosting) on `adult.data` and score it on `adult.test`. This is the "deployed model" in our story. Its results fill the README's **Model** results table.
 
-> ⚠️ **Accuracy alone is misleading here.** 76% of people earn `<=50K`, so a model that always guesses `<=50K` scores 76% accuracy while being useless. That's why we report **F1 and ROC-AUC** alongside accuracy.
+> **Accuracy alone is misleading here.** 76% of people earn `<=50K`, so a model that always guesses `<=50K` scores 76% accuracy while being useless. That's why we report **F1 and ROC-AUC** alongside accuracy.
 
 ### Job 2: Be the "normal" reference
 The training data defines what "normal" looks like. Every live batch gets compared against it. If live data stops looking like the training data, that's **drift**, and the model's predictions can't be trusted as much.
@@ -96,7 +96,7 @@ We can't wait months for real-world drift, so we **simulate** it. The simulator 
 
 The dataset includes `race`, `sex`, and `native_country`, and it reflects 1994 income patterns, including real historical inequalities. A model trained on it can learn and repeat those biases. For our project:
 - We use it to demonstrate **monitoring**, not to make real decisions about people.
-- In the presentation, we should acknowledge the bias and say that a real deployment would also need **fairness monitoring** (comparing error rates across groups). That's a natural "future work" point for DeployMate.
+- A production deployment would also need **fairness monitoring** (comparing error rates across groups). That's a natural "future work" point for DeployMate.
 
 ## 7. How to get it
 
@@ -112,7 +112,3 @@ Or by hand: download the zip above and unzip it into `data/raw/`. That folder is
 from deploymate.data.load import load_dataset
 X_train, X_test, y_train, y_test = load_dataset()   # y: 1 = >50K, 0 = <=50K
 ```
-
-## 9. 30-second version (for the presentation)
-
-> "We used the UCI Adult census dataset: about 48,000 people, 14 features like age, education, occupation, and hours worked, and the goal of predicting whether someone earns over $50K. It does three jobs for us. It trains the model we're monitoring. It defines what 'normal' data looks like. And when we replay it as live traffic and deliberately corrupt some batches, it lets us measure exactly how well DeployMate catches problems."

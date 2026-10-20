@@ -1,22 +1,23 @@
 # Project Title: ML DeployMate
 
->>> ML DeployMate monitors deployed machine-learning models and catches problems before users notice them. Statistical drift tests and an Isolation Forest anomaly detector flag degrading models in real time, and a Claude-powered assistant explains each alert in plain English. It also generates deployment configs. *(🚧 In progress. See [BLUEPRINT.md](BLUEPRINT.md) for the full plan.)*
+>>> ML DeployMate monitors a deployed machine-learning model and detects when incoming data drifts away from the data the model was trained on. Per-feature statistical tests (Population Stability Index, Kolmogorov–Smirnov, chi-squared with Cramér's V) raise alerts, an Isolation Forest tracks unusual model behavior, and a large language model explains each alert in plain language. The monitored model is a gradient-boosted classifier trained on the UCI Adult census dataset.
 
 ## 👥 Team Members & Contributions
 As per course requirements, all three members must actively collaborate and commit to this repository.
-*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - 
-*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** -
-*   **Aubrenesia Tomlinson ([aubrenesia](https://github.com/aubrenesia))** -
+*   **Obaloluwa Wojuade ([obwoj1](https://github.com/obwoj1))** - Data pipeline, model training, drift monitoring, backend services, UI
+*   **Marissa Savage ([sadiebird5](https://github.com/sadiebird5))** - Dashboard pages, deployment, model evaluation,  presentation
+*   **Aubrenesia Tomlinson ([aubrenesia](https://github.com/aubrenesia))** - Dashboard application shell, drift monitoring, theme and navigation, wireframes
 
 ---
 
 ## 🚀 Live Demo
-*   **Application URL:** *TBD (Streamlit Community Cloud / Hugging Face Spaces)*
+*   **Application URL:** https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app
 *   *Note: This live demo must be fully functional and accessible during the live project presentation.*
+
+The application is hosted on Streamlit Community Cloud. After a period of inactivity, the first load may take up to a minute while the app restarts.
 
 ### 🎥 Project Walkthrough
 ![Project Demo Walkthrough](assets/demo.gif)
-*(`demo.gif` will be added to `assets/` before the final submission deadline)*
 
 ---
 
@@ -25,10 +26,10 @@ As per course requirements, all three members must actively collaborate and comm
 Follow these steps to set up the environment and run the project locally.
 
 ### Prerequisites
-*   Python 3.13 (what the pinned packages are tested on)
+*   Python 3.13
 *   `pip` or `conda`
 *   Git
-*   An Anthropic (Claude) API key (optional; without one, explanations use a built-in template)
+*   Optional: an Anthropic API key for AI-generated alert explanations. Without a key, explanations are generated from a template.
 
 ### Local Installation
 ```bash
@@ -43,43 +44,43 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 # Install required dependencies
 pip install -r requirements-dev.txt
 
-# Configure environment variables
-cp .env.example .env      # then add your API key
+# Optional: add an API key
+cp .env.example .env
 ```
 
-**How everything works (every part, every decision): [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)**
-
-Full step-by-step guide (VS Code, notebooks, daily git workflow): [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
-
-### Run it
+### Running the Project
 ```bash
-streamlit run app/Home.py            # dashboard → http://localhost:8501
-uvicorn api.main:app --reload        # REST API → http://localhost:8000/docs
-pytest                               # tests
+streamlit run app/Home.py        # dashboard at http://localhost:8501
+uvicorn api.main:app --reload    # REST API at http://localhost:8000/docs
+pytest                           # test suite
 ```
-The first start downloads the dataset and trains the model automatically (~15s). Deployment: [docs/DEPLOY.md](docs/DEPLOY.md).
+On first start, the application downloads the dataset and trains the model automatically.
+
+Further documentation:
+*   [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md): system design and methodology
+*   [docs/DATASET.md](docs/DATASET.md): dataset description and cleaning
+*   [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md): detailed local setup
+*   [docs/DEPLOY.md](docs/DEPLOY.md): deployment to Streamlit Community Cloud
 
 ---
 
 ## 📊 Dataset
-*   **Source:** [UCI Adult / Census Income](https://archive.ics.uci.edu/dataset/2/adult) (1994 U.S. Census, CC BY 4.0)
-*   **Description:** 48,842 people (32,561 train / 16,281 test), 14 features: 6 numeric (age, hours per week, capital gain, …) and 8 categorical (workclass, education, occupation, …). Binary target: `income > 50K` (24% positive, so imbalanced).
-*   **Role in the project:** (1) trains the monitored classifier, (2) defines the "normal" reference distribution, (3) is replayed as simulated live traffic with labeled, injected drift to evaluate the detector.
-*   **Data Pipeline:** Not tracked in git (`data/raw/` is gitignored). Run `python scripts/download_data.py`, or unzip [adult.zip](https://archive.ics.uci.edu/static/public/2/adult.zip) into `data/raw/`. Full walkthrough, column dictionary, and cleaning notes: [docs/DATASET.md](docs/DATASET.md).
+*   **Source:** [UCI Adult (Census Income)](https://archive.ics.uci.edu/dataset/2/adult), 1994 U.S. Census, CC BY 4.0
+*   **Description:** 48,842 records (32,561 training, 16,281 test). Twelve features are used: five numeric (age, years of education, capital gain, capital loss, hours per week) and seven categorical (workclass, marital status, occupation, relationship, race, sex, native country). The binary target is whether annual income exceeds $50K; 24% of records are positive.
+*   **Data Pipeline:** The data is not tracked in git. `python scripts/download_data.py` downloads it into `data/raw/`, and `deploymate/data/load.py` cleans it (missing values are kept as an "Unknown" category; `fnlwgt` and `education` are dropped as a sampling weight and a duplicate of `education_num`).
 
 ---
 
 ## 🧠 Model Architecture & Training
-*   **Algorithm:** Monitored model: Gradient Boosting (`HistGradientBoostingClassifier`), chosen over Random Forest and a Logistic Regression baseline. Monitor: PSI / KS / chi² drift tests + Isolation Forest.
-*   **Frameworks Used:** scikit-learn, FastAPI, Anthropic Claude API, Streamlit, Plotly
-*   **Training Process:** scikit-learn `Pipeline`: numeric features → `StandardScaler`, categorical → `OneHotEncoder(handle_unknown="ignore")`, then the classifier. Three classifiers compared with stratified 5-fold cross-validation on the training split; the winner by ROC-AUC (robust to the 76/24 class imbalance) is refit on all training data and scored once on the held-out test split. Run `python scripts/train.py` (~15s) to reproduce; it saves `models/model.joblib` + `models/report.json`.
+*   **Algorithm:** Gradient Boosting (`HistGradientBoostingClassifier`), selected over Random Forest and a Logistic Regression baseline. The monitor combines per-feature drift tests with an Isolation Forest over batch-level model metrics.
+*   **Frameworks Used:** scikit-learn, pandas, SciPy, Streamlit, Plotly, FastAPI, Anthropic API
+*   **Training Process:** Each model is a scikit-learn `Pipeline` (standard scaling for numeric features, one-hot encoding for categorical features). The three candidates were compared with stratified 5-fold cross-validation on the training set and ranked by ROC-AUC, which is robust to the class imbalance. The selected model was refit on the full training set and evaluated once on the held-out test set. Reproduce with `python scripts/train.py`.
 
 ---
 
 ## 📈 Evaluation & Results
-*Results will be filled in as models are trained.*
 
-**Monitored model: Gradient Boosting** (selected by 5-fold cross-validated ROC-AUC)
+### Monitored model (Gradient Boosting)
 
 | Metric | Training Set | Test Set |
 | :--- | :--- | :--- |
@@ -89,17 +90,19 @@ The first start downloads the dataset and trains the model automatically (~15s).
 | F1-Score | 0.740 | 0.707 |
 | ROC-AUC | 0.943 | 0.928 |
 
-**Model comparison** (5-fold cross-validation on the training set)
+A majority-class baseline scores 0.764 test accuracy. The close training and test scores indicate no significant overfitting. Hyperparameter tuning did not materially improve accuracy (0.8728 to 0.8731 in cross-validation), which is consistent with published results on this dataset (approximately 85–88%).
 
-| Model | CV Accuracy | CV F1 | CV ROC-AUC |
+### Model comparison (5-fold cross-validation)
+
+| Model | Accuracy | F1 | ROC-AUC |
 | :--- | :--- | :--- | :--- |
-| **Gradient Boosting** | **0.873** | **0.713** | **0.928** |
+| Gradient Boosting | 0.873 | 0.713 | 0.928 |
 | Random Forest | 0.866 | 0.690 | 0.919 |
-| Logistic Regression (baseline) | 0.852 | 0.662 | 0.907 |
+| Logistic Regression | 0.852 | 0.662 | 0.907 |
 
-*For reference, always predicting `<=50K` scores 0.764 test accuracy. Most important features (permutation importance): marital status, capital gain, age, education. Full report: [models/report.json](models/report.json). Exploration: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).*
+### Drift monitor
 
-**Drift / anomaly monitor** (alerts come from the drift tests; the anomaly detector is an info signal). 10 simulated runs per scenario, 40 batches × 400 rows each, independent random seeds.
+The monitor was evaluated on simulated traffic: the test set was replayed as batches of 400 rows, and five types of drift were injected into labeled batches (gradual age shift, sudden hours shift, occupation mix change, missing values, and noise), alongside healthy runs. Each scenario was run 10 times with independent random seeds (2,400 batches in total).
 
 | Scenario | Precision | Recall | F1 | False-alarm rate | Detection delay (batches) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -109,19 +112,19 @@ The first start downloads the dataset and trains the model automatically (~15s).
 | category_shift | 1.000 | 1.000 | 1.000 | 0.0% | 0.0 |
 | missing_values | 1.000 | 1.000 | 1.000 | 0.0% | 0.0 |
 | noise | 1.000 | 1.000 | 1.000 | 0.0% | 0.0 |
-| **Overall** | **1.000** | **0.931** | **0.965** | **0.0%** | **1.5** |
+| Overall | 1.000 | 0.931 | 0.965 | 0.0% | 1.5 |
 
-**Why alerts use only the drift tests (ablation):**
+All 50 drifted runs were detected. Missed batches occur only at the start of gradual drift, where the shift is still very small.
+
+**Ablation.** Alerts are raised by the drift tests only. Allowing the Isolation Forest to trigger alerts added false alarms without a meaningful gain in recall, so it is reported as an informational signal:
 
 | Detector | Precision | Recall | F1 | False-alarm rate |
 | :--- | :--- | :--- | :--- | :--- |
-| **Drift tests (DeployMate alerts)** | **1.000** | **0.931** | **0.965** | **0.0%** |
-| Anomaly detector alone | 0.975 | 0.287 | 0.444 | 0.6% |
-| Alert if either fires | 0.992 | 0.932 | 0.961 | 0.6% |
+| Drift tests (used for alerts) | 1.000 | 0.931 | 0.965 | 0.0% |
+| Isolation Forest only | 0.975 | 0.287 | 0.444 | 0.6% |
+| Either | 0.992 | 0.932 | 0.961 | 0.6% |
 
-*Letting the anomaly detector trigger alerts added 0.6% false alarms for +0.1% recall, so it's shown on the dashboard as an info signal instead. Every broken run was detected (50/50). Sudden problems are caught on the very first broken batch; gradual drift takes ~7 batches because the earliest shifts are tiny. Reproduce with `python scripts/evaluate_monitor.py`; raw numbers in [assets/monitor_results.json](assets/monitor_results.json).*
-
-*Confusion matrices, ROC curves, and drift plots will go in [`assets/`](assets/).*
+Reproduce with `python scripts/evaluate_monitor.py`. Raw results: [assets/monitor_results.json](assets/monitor_results.json) and [models/report.json](models/report.json). Exploratory analysis: [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).
 
 ---
 
@@ -130,6 +133,3 @@ To maintain collaboration integrity, remember to:
 1.  **Branch Frequently:** Create feature branches (`git checkout -b feature/your-feature`).
 2.  **Commit Regularly:** Write descriptive commit messages (`git commit -m "Add data augmentation pipeline"`).
 3.  **Pull Before Push:** Always pull latest changes to avoid conflicts (`git pull origin main`).
-4.  **Pull Requests Only:** No direct pushes to `main`. Every PR gets one teammate review.
-
-Full team rules: [BLUEPRINT.md §8](BLUEPRINT.md#8-git-workflow-team-rules).

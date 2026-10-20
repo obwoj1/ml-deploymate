@@ -3,7 +3,7 @@
     python scripts/download_data.py          # skips files that already exist
     python scripts/download_data.py --force  # re-download everything
 
-data/raw/ is gitignored, so every teammate (and the live server) runs this once.
+data/raw/ is gitignored, so each environment (including the deployed app) runs this once.
 See docs/DATASET.md for what the data is.
 """
 

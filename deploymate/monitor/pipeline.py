@@ -2,7 +2,7 @@
 
 Alerts come from the DRIFT TESTS only. The anomaly detector is reported as an
 info signal: evaluation showed that letting it trigger alerts added ~0.6%
-false alarms for +0.1% recall (see README results + PROGRESS.md, 2026-10-15).
+false alarms for +0.1% recall (see the ablation table in the README).
 
     monitor = Monitor.from_data(model, X_reference, healthy_batches)
     report = monitor.check(batch_X, batch_y)   # y optional

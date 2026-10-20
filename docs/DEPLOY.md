@@ -1,53 +1,53 @@
-# Deploying the dashboard (Streamlit Community Cloud)
+# Deployment (Streamlit Community Cloud)
 
-Goal: a public URL for the live demo (required in the README and during the presentation).
-Streamlit Community Cloud is free and deploys straight from GitHub.
+The dashboard is deployed at https://ml-deploymate-2tgkbhmailycfxbjgpvyys.streamlit.app
 
-## Already checked (2026-10-19)
-We tested a **fresh copy of the repo exactly like the server sees it** (no dataset, no trained
-model, no API key, only `requirements.txt` installed, Python 3.13):
-- Install: ✅ ~20 seconds, no errors
-- The app **downloads the dataset and trains the model by itself** on first start
-- All 6 pages load with no errors, on real data (not demo data)
-- No API key → AI explanations use the template (still work)
+## Requirements
+- The app installs only `requirements.txt` (pinned, runtime-only) on Python 3.13.
+- No dataset or trained model needs to be committed: on first start the app downloads the UCI Adult dataset and trains the model automatically (about 10–15 seconds), then caches both in memory.
+- An API key is optional. Without one, alert explanations use the built-in template.
 
-## Step by step
-1. Go to **https://share.streamlit.io** and sign in **with GitHub**.
-2. Click **Create app** → **Deploy a public app from GitHub** (Yes, from a private repo is fine. Streamlit will ask for permission to read it; the repo owner, Oba, may need to approve).
-3. Fill in:
+This was verified on a fresh clone with no data, no model and no key: installation completed in about 20 seconds and every page loaded on real data.
+
+## Steps
+1. Sign in at https://share.streamlit.io with GitHub. If the repository is private, grant Streamlit access to private repositories.
+2. Select **Create app** → **Deploy a public app from GitHub**.
+3. Settings:
+
    | Field | Value |
    |---|---|
    | Repository | `obwoj1/ml-deploymate` |
    | Branch | `main` |
    | Main file path | `app/Home.py` |
-   | App URL | e.g. `ml-deploymate` (gives `ml-deploymate.streamlit.app`) |
-4. Click **Advanced settings**:
-   - **Python version: 3.13** (the packages are pinned for 3.13)
-   - **Secrets** (optional, only for real AI explanations; **Oba should type this in himself**):
-     ```toml
-     ANTHROPIC_API_KEY = "sk-ant-..."
-     ```
-     Use a key that belongs to a **workspace** (console.anthropic.com → Settings → API keys).
-     An organization-level key also needs `ANTHROPIC_WORKSPACE_ID = "wrkspc_..."`.
-     Never put the key in the repo or in a chat. Without it, explanations use the template.
-5. Click **Deploy**. The first build takes 2–4 minutes. Then the first page load takes
-   ~10–15 seconds (downloading the data + training the model); after that it's instant.
-6. Click through all 5 pages. Run a scenario on Live Monitor and check the Alerts page.
-7. Put the URL in the README under **🚀 Live Demo** and open a PR.
 
-## Before the presentation ⚠️
-- **Free apps go to sleep after a few days with no visitors.** Open the URL **10 minutes before
-  presenting**. If you see "This app has gone to sleep", click **Yes, get this app back up** and wait.
-- Every push to `main` redeploys automatically. **Don't merge anything right before presenting.**
-- Backup plan if the internet fails: run it locally with `streamlit run app/Home.py`.
+4. Under **Advanced settings**, set the Python version to **3.13** and, optionally, add secrets:
+   ```toml
+   ANTHROPIC_API_KEY = "sk-ant-..."
+   ```
+   Use a workspace-scoped key. An organization-level key also requires `ANTHROPIC_WORKSPACE_ID`. Enter secrets only in the Streamlit settings; never commit them.
+5. Select **Deploy**. The first build takes a few minutes.
 
-## If something goes wrong
-- **"ModuleNotFoundError"** → a package is missing from `requirements.txt` (only that file is
-  installed on the server, not `requirements-dev.txt`).
-- **Page shows "Showing demo data"** → the real backend failed to start. Open
-  **Manage app → logs** (bottom right) to see why. The most likely cause is that the dataset
-  download failed; reboot the app.
-- **Changes don't show up** → **Manage app → ⋮ → Reboot app**.
+Secrets can be added or changed later under **Settings → Secrets**. The Python version can only be changed by redeploying.
+
+## Operational notes
+- Every merge into `main` triggers an automatic redeploy.
+- Apps on the free tier sleep after a period of inactivity; the first visit afterwards restarts the app. Open the app shortly before a demo.
+- The theme is read from `.streamlit/config.toml` in the repository root. Deploying from a branch with a different config changes the theme.
+- Local fallback: `streamlit run app/Home.py` from the project root.
+
+## Troubleshooting
+| Symptom | Likely cause |
+|---|---|
+| `ModuleNotFoundError` in the logs | A package is missing from `requirements.txt` |
+| "Showing demo data" banner | The real backend failed to start (usually the dataset download); check **Manage app → logs** and reboot |
+| "Template explanation" on the Alerts page | No valid API key in Secrets |
+| Changes not visible | **Manage app → Reboot app** |
+
+## Troubleshooting in detail
+
+### `ModuleNotFoundError` in the logs
+
+**Symptom:** The app fails to start and the logs show `ModuleNotFoundError`.
 
 **Steps to fix:**
 1. Open the application logs.
@@ -119,7 +119,9 @@ If the hosted application is unavailable:
 2. Activate the project's virtual environment.
 3. Run:
 
+   ```bash
    streamlit run app/Home.py
+   ```
 
 4. Open the local address printed in the terminal.
 5. Check the pages needed for the demonstration.
@@ -127,4 +129,3 @@ If the hosted application is unavailable:
 Prepare and test this backup before the presentation. The first local
 startup may need internet access to download the dataset and install
 dependencies.
-
