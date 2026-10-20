@@ -57,7 +57,7 @@ def draw(rows: list[dict], alerts: list[dict], done: bool) -> None:
         c1.metric("Batch", f"{latest['batch']} / {n_batches}")
         c2.metric("Accuracy", f"{latest['accuracy']:.1%}")
         c3.metric("Model confidence", f"{latest['confidence']:.1%}")
-        c4.metric("Alerts", len(alerts))
+        c4.metric("Alerts this run", len(alerts))
 
     acc = px.line(df, x="batch", y="accuracy", markers=True, range_y=[0.7, 1.0],
                   color_discrete_sequence=["#B4FF39"], title="Model accuracy per batch")
