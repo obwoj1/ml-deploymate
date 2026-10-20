@@ -96,5 +96,44 @@ changed enough to cross the configured thresholds.
 Model-behavior anomaly indicators provide additional information. They do not
 independently trigger drift alerts in the documented implementation.
 
-A drift alert means the data changed. It does not, by itself, prove that the
-model's accuracy decreased.
+A drift alert means the data changed. It does not, by itself, prove that the model's accuracy decreased.
+
+## Alerts
+
+### Purpose
+
+The Alerts page allows users to investigate detected drift and request
+plain-language explanations.
+
+### Steps
+
+1. Select Alerts from the sidebar.
+2. Review the available alerts.
+3. Inspect an alert's batch information, severity, and affected features.
+4. Review the reported differences between the reference data and the batch.
+5. Select Explain with AI for the alert you want to understand.
+6. Read the summary, likely cause, and suggested action.
+7. Use the measured changes to decide what to investigate next.
+
+### Alert Severity
+
+- Medium: One feature drifted without meeting the severe-shift threshold.
+- High: At least one feature had a severe shift, or two or more features drifted.
+
+Severity describes the detected shift, rather than confirming its business impact.
+
+### Explanations
+
+Explanations describe what changed, possible causes, and suggested next steps.
+Possible causes should be investigated rather than treated as confirmed facts.
+
+If an AI provider is unavailable or no API key is configured, DeployMate uses
+a template explanation based on the alert's measurements.
+
+### If No Alerts Appear
+
+1. Open Live Monitor.
+2. Run a scenario such as sudden_shift.
+3. Return to Alerts and review the available results.
+
+Alerts are stored in memory and can reset when the application server restarts.
