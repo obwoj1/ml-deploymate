@@ -35,13 +35,14 @@ explanations = st.session_state.setdefault("explanations", {})
 # --- Summary + filter ---------------------------------------------------------
 high = sum(a["severity"] == "high" for a in alerts)
 c1, c2, c3 = st.columns(3)
-c1.metric("Total alerts", len(alerts))
+c1.metric("Alerts since last reset", len(alerts))
 c2.metric("High severity", high)
 c3.metric("Medium severity", len(alerts) - high)
 
 severity = st.segmented_control("Severity", ["all", "high", "medium"], default="all")
 shown = [a for a in alerts if severity in (None, "all") or a["severity"] == severity]
-st.caption(f"Showing {len(shown)} of {len(alerts)} alerts, newest first.")
+st.caption(f"Showing {len(shown)} of {len(alerts)} alerts, newest first. This list keeps every run "
+           "until someone clicks Clear all alerts or the app restarts.")
 
 # --- Alert list ---------------------------------------------------------------
 for alert in shown:
