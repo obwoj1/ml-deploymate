@@ -137,3 +137,55 @@ a template explanation based on the alert's measurements.
 3. Return to Alerts and review the available results.
 
 Alerts are stored in memory and can reset when the application server restarts.
+
+## Model Performance
+
+### Purpose
+
+The Model Performance page displays evaluation results for the monitored
+income-classification model.
+
+The model predicts whether a person's annual income is above $50,000 using
+the UCI Adult census dataset.
+
+### Steps
+
+1. Select Model Performance from the sidebar.
+2. Review the reported evaluation scores.
+3. Examine the confusion matrix to see correct and incorrect predictions.
+4. Review the ROC curve to understand classification performance across
+   decision thresholds.
+5. Review feature importance to see which inputs the model relies on most.
+
+### Metrics
+
+| Metric | Meaning |
+| --- | --- |
+| Accuracy | The proportion of all predictions that were correct. |
+| Precision | Of the people predicted to earn above $50,000, the proportion who actually did. |
+| Recall | Of the people who actually earned above $50,000, the proportion the model identified. |
+| F1 Score | A combined measure of precision and recall. |
+| ROC-AUC | How well the model ranks the two income classes across decision thresholds. |
+
+### Reading the Confusion Matrix
+
+The confusion matrix compares actual income classes with predicted classes.
+
+- Correct predictions match the actual class.
+- False positives predict income above $50,000 when the actual class is
+  $50,000 or less.
+- False negatives predict income of $50,000 or less when the actual class
+  is above $50,000.
+
+### Reading Feature Importance
+
+Higher importance means that disrupting a feature had a larger effect on the
+model's measured performance.
+
+Feature importance describes the model's reliance on an input. It does not
+prove that the input causes income differences.
+
+### Important Distinction
+
+These are model evaluation results. They are separate from the monitor's
+precision and recall, which measure how well DeployMate detects drift.
