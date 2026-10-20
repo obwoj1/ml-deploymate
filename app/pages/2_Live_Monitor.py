@@ -60,12 +60,12 @@ def draw(rows: list[dict], alerts: list[dict], done: bool) -> None:
         c4.metric("Alerts", len(alerts))
 
     acc = px.line(df, x="batch", y="accuracy", markers=True, range_y=[0.7, 1.0],
-                  title="Model accuracy per batch")
+                  color_discrete_sequence=["#B4FF39"], title="Model accuracy per batch")
     acc.update_layout(height=320, margin=dict(t=40, b=10))
     accuracy_chart.plotly_chart(acc, width="stretch", key=f"acc-{len(rows)}-{done}")
 
     drift = px.bar(df, x="batch", y="drift_score", color="alert",
-                   color_discrete_map={True: "#E5484D", False: "#4CC38A"},
+                   color_discrete_map={True: "#FF5A5F", False: "#B4FF39"},
                    title="Biggest drift score per batch (red = alert)")
     drift.update_layout(height=320, margin=dict(t=40, b=10), showlegend=False)
     drift_chart.plotly_chart(drift, width="stretch", key=f"drift-{len(rows)}-{done}")

@@ -39,7 +39,7 @@ left, right = st.columns(2)
 cm = report["confusion_matrix"]
 heat = px.imshow(cm["matrix"], x=[f"Predicted {l}" for l in cm["labels"]],
                  y=[f"Actually {l}" for l in cm["labels"]], text_auto=",",
-                 color_continuous_scale="Blues", title="Confusion matrix (test set)")
+                 color_continuous_scale=[[0, "#1C2F52"], [1, "#B4FF39"]], title="Confusion matrix (test set)")
 heat.update_layout(height=380, coloraxis_showscale=False, margin=dict(t=50, b=10))
 left.plotly_chart(heat, width="stretch")
 left.caption("Diagonal = correct predictions. The model misses some high earners, "
@@ -47,8 +47,9 @@ left.caption("Diagonal = correct predictions. The model misses some high earners
 
 roc = report["roc_curve"]
 curve = go.Figure([
-    go.Scatter(x=roc["fpr"], y=roc["tpr"], mode="lines", name=f"Model (AUC {test['roc_auc']:.3f})"),
-    go.Scatter(x=[0, 1], y=[0, 1], mode="lines", name="Random guess", line=dict(dash="dash")),
+    go.Scatter(x=roc["fpr"], y=roc["tpr"], mode="lines", name=f"Model (AUC {test['roc_auc']:.3f})",
+               line=dict(color="#B4FF39", width=3)),
+    go.Scatter(x=[0, 1], y=[0, 1], mode="lines", name="Random guess", line=dict(dash="dash", color="#A8B5CE")),
 ])
 curve.update_layout(title="ROC curve (test set)", xaxis_title="False positive rate",
                     yaxis_title="True positive rate", height=380, margin=dict(t=50, b=10),
@@ -59,7 +60,7 @@ right.caption("The further the curve bows toward the top-left, the better the mo
 # --- Feature importance -----------------------------------------------------------
 importance = pd.DataFrame(report["feature_importance"]).sort_values("importance")
 bars = px.bar(importance, x="importance", y="feature", orientation="h",
-              title="Which features the model relies on (permutation importance)")
+              color_discrete_sequence=["#B4FF39"], title="Which features the model relies on (permutation importance)")
 bars.update_layout(height=420, margin=dict(t=50, b=10))
 st.plotly_chart(bars, width="stretch")
 st.caption("How much the test ROC-AUC drops when that feature is shuffled. Bigger = more important.")
