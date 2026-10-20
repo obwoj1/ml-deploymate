@@ -52,3 +52,49 @@ activity.
 
 Recorded test accuracy does not guarantee that the model will perform equally
 well on future data. Drift alerts help identify changes that need investigation.
+
+## Live Monitor
+
+### Purpose
+
+The Live Monitor page demonstrates how DeployMate checks incoming batches
+against reference data from the training dataset.
+
+### Steps
+
+1. Select Live Monitor from the sidebar.
+2. Choose a monitoring scenario from the available options.
+3. Use the page's run control to start the scenario.
+4. Watch the displayed batch results and charts.
+5. Look for changes in the input data and any reported alerts.
+6. Open Alerts to investigate the detected changes.
+
+### Available Scenarios
+
+| Scenario | What It Demonstrates |
+| --- | --- |
+| healthy | Unmodified data used to demonstrate normal traffic. |
+| gradual_shift | Ages gradually increase during the run. |
+| sudden_shift | Hours worked per week suddenly increase. |
+| category_shift | The distribution of occupations changes. |
+| missing_values | Missing employer, occupation, and country values increase. |
+| noise | Random variation is added to age and working hours. |
+
+### Suggested First Run
+
+1. Run healthy to observe normal monitoring behavior.
+2. Run sudden_shift to observe a clear change.
+3. Compare the monitoring results.
+4. Review the resulting alerts.
+
+### Understanding the Results
+
+DeployMate compares each batch with a reference sample representing normal data.
+Its drift tests check whether numeric values or category distributions have
+changed enough to cross the configured thresholds.
+
+Model-behavior anomaly indicators provide additional information. They do not
+independently trigger drift alerts in the documented implementation.
+
+A drift alert means the data changed. It does not, by itself, prove that the
+model's accuracy decreased.
