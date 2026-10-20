@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # lets the page find the `deploymate` code
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so the page can find style.py
+from style import inject
+inject()
 
 import pandas as pd
 import streamlit as st
