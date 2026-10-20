@@ -16,8 +16,8 @@ st.title("Overview")
 st.caption("Is the deployed model healthy right now?")
 
 with st.spinner("Loading (first load takes a few seconds)..."):
-    alerts = service.list_alerts()  # first: a fresh server seeds demo alerts here
     overview = service.get_overview()
+    alerts = service.list_alerts()
     report = service.get_model_report()
 
 if overview["mock"]:
