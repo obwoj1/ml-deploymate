@@ -24,6 +24,11 @@ if not alerts:
     st.info("No alerts yet. Run a scenario on the **Live Monitor** page.")
     st.stop()
 
+if st.button("Clear all alerts", help="Start fresh: removes every alert and resets the batch counter."):
+    service.clear_alerts()
+    st.session_state.pop("explanations", None)
+    st.rerun()
+
 # Explanations are cached per alert for this browser session, so the AI is called once per alert.
 explanations = st.session_state.setdefault("explanations", {})
 

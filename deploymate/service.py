@@ -169,14 +169,17 @@ def run_scenario(name: str, n_batches: int = 30, seed: int = 0) -> Iterator[dict
         yield report
 
 
-def _ensure_demo_alerts(b: _Backend) -> None:
-    """On a fresh server the alert log is empty; seed it with one run of a few scenarios."""
-    if b.alerts:
+def clear_alerts() -> None:
+    """Empty the alert log and batch counter, so the dashboard starts from a healthy state."""
+    b = _get_backend()
+    if b is None:
+        mock_service.clear_alerts()
         return
-    for scenario in ["sudden_shift", "category_shift", "missing_values"]:
-        for report in run_scenario(scenario, n_batches=30, seed=7):
-            if report["alert"]:
-                break  # one alert per scenario is enough for the demo
+    with b.lock:
+        b.alerts.clear()
+        b.reports.clear()
+        b.batches_processed = 0
+        b.last_updated = None
 
 
 def list_alerts() -> list[dict]:
@@ -184,7 +187,6 @@ def list_alerts() -> list[dict]:
     b = _get_backend()
     if b is None:
         return mock_service.list_alerts()
-    _ensure_demo_alerts(b)
     with b.lock:
         return sorted(b.alerts, key=lambda a: a["id"], reverse=True)
 
