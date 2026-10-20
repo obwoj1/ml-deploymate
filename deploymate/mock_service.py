@@ -131,6 +131,11 @@ def list_alerts() -> list[dict]:
     return sorted(_ALERTS, key=lambda a: a["time"], reverse=True)
 
 
+def clear_alerts() -> None:
+    """Empty the demo alert log."""
+    _ALERTS.clear()
+
+
 def explain_alert(alert_id: int) -> dict:
     """Plain-English explanation of one alert (the LLM's job once it's real)."""
     alert = next((a for a in _ALERTS if a["id"] == alert_id), None)

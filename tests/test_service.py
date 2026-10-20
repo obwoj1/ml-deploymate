@@ -71,6 +71,7 @@ def test_mode_is_reported():
 
 
 def test_alerts_and_explanations():
+    list(service.run_scenario("sudden_shift", n_batches=20, seed=7))
     alerts = service.list_alerts()
     assert alerts
     explanation = service.explain_alert(alerts[0]["id"])
@@ -107,3 +108,12 @@ def test_real_run_records_alerts(mode):
     assert newest["scenario"] == "missing_values" and "workclass" in newest["features"]
     explanation = service.explain_alert(newest["id"])
     assert explanation["source"] == "template" and "Unknown" in explanation["summary"]
+
+
+def test_clear_alerts_resets_to_healthy():
+    list(service.run_scenario("sudden_shift", n_batches=20, seed=7))
+    assert service.list_alerts()
+    service.clear_alerts()
+    assert service.list_alerts() == []
+    overview = service.get_overview()
+    assert overview["active_alerts"] == 0 and overview["status"] == "healthy"
