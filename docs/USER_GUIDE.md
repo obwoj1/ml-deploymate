@@ -189,3 +189,54 @@ prove that the input causes income differences.
 
 These are model evaluation results. They are separate from the monitor's
 precision and recall, which measure how well DeployMate detects drift.
+
+## Config Generator
+
+### Purpose
+
+The Config Generator creates starter configuration files for deployment
+and project automation.
+
+The documented outputs include a Dockerfile, a continuous integration
+workflow, and an environment configuration file.
+
+### Steps
+
+1. Select Config Generator from the sidebar.
+2. Review the fields and options displayed in the form.
+3. Enter the requested settings for your project.
+4. Check the values before generating the configuration.
+5. Use the page's generate control.
+6. Review the generated contents.
+7. Save the generated files using the page's available output controls.
+8. Follow the deployment documentation to place and use the files correctly.
+
+### Generated Files
+
+| File | Purpose |
+| --- | --- |
+| Dockerfile | Defines instructions for building a container image. |
+| CI workflow | Defines automated project checks, such as tests. |
+| .env file | Defines environment settings used by the application. |
+
+### Before Using the Output
+
+- Review the generated settings and adjust them for your environment.
+- Keep passwords and API keys out of version control.
+- Follow the project's deployment instructions for configuring secrets.
+- Generating configuration files does not automatically deploy the application.
+
+## Recommended Walkthrough
+
+1. Start with Overview to understand the application's status.
+2. Run healthy in Live Monitor.
+3. Run sudden_shift and compare the results.
+4. Open Alerts and request an explanation.
+5. Review the model's evaluation results in Model Performance.
+6. Use Config Generator to inspect deployment configuration examples.
+
+## Further Reading
+
+- [How DeployMate Works](HOW_IT_WORKS.md)
+- [Deployment Guide](DEPLOY.md)
+- [Local Setup Guide](LOCAL_SETUP.md)
